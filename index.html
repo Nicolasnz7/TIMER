@@ -1,11 +1,12 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Pista de Carritos</title>
+<title>Pista de Cars</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Pista">
 <meta name="format-detection" content="telephone=no">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Figtree:wght@400;500;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 /* Layout: control de pista — resumen arriba, cuadrícula de vehículos con semáforo de estado y estado de pago */
 :root{
@@ -218,6 +219,65 @@ button.stat:hover{filter:brightness(.97)}
 .split-legend span{display:flex;align-items:center;gap:6px}
 .empty-stats{background:var(--surface);border:2px dashed var(--line);border-radius:16px;padding:28px 18px;text-align:center;color:var(--muted)}
 .empty-stats b{display:block;font-family:var(--display);font-size:1.3rem;color:var(--fg)}
+/* Jornada */
+.shift{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px 10px 14px}
+.shift .sdot{width:12px;height:12px;border-radius:50%;background:var(--muted);flex:none}
+.shift.open .sdot{background:var(--go);box-shadow:0 0 0 4px var(--go-soft)}
+.shift-text{display:flex;flex-direction:column;min-width:0;flex:1 1 180px}
+.shift-text b{font-family:var(--display);font-size:1.1rem;line-height:1.15}
+.shift-text small{color:var(--muted);font-size:.8rem}
+.shift-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:10px 14px;font-weight:700;border-radius:10px;background:var(--surface-2)}
+.btn:hover{filter:brightness(.96)}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.dark{background:var(--fg);color:var(--bg)}
+.btn.danger{background:var(--stop);color:#fff}
+
+/* Ventana emergente */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(10,14,8,.55);display:flex;align-items:center;justify-content:center;
+  padding:max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px))}
+.sheet{background:var(--surface);color:var(--fg);border-radius:20px;width:100%;max-width:520px;max-height:100%;overflow:auto;-webkit-overflow-scrolling:touch;padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.sheet h2{font-family:var(--display);font-size:1.5rem;line-height:1.1;margin:0}
+.sheet .lead{color:var(--muted);font-size:.88rem;margin:-8px 0 0}
+.sum-big{background:var(--go-soft);border-radius:14px;padding:14px;display:flex;flex-direction:column}
+.sum-big span{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--go)}
+.sum-big b{font-family:var(--display);font-size:2.4rem;line-height:1.05;color:var(--go);font-variant-numeric:tabular-nums}
+.sum-big small{color:var(--muted);font-size:.8rem}
+.sum-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sum-grid div{background:var(--surface-2);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;min-width:0}
+.sum-grid span{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+.sum-grid b{font-family:var(--display);font-size:1.25rem;line-height:1.15;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.sum-grid .warn b{color:var(--warn)}
+.sheet .alert{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:10px 12px;font-weight:600;font-size:.88rem}
+.sheet-actions{display:flex;gap:8px;flex-wrap:wrap}
+.sheet-actions .btn{flex:1 1 140px;padding:13px 14px}
+
+/* Aviso breve */
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);z-index:60;background:var(--fg);color:var(--bg);padding:11px 18px;border-radius:12px;font-weight:600;font-size:.9rem;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:calc(100% - 32px);text-align:center}
+
+/* Selector de rango */
+.stats-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.stats-top h2{font-family:var(--display);font-size:1.5rem;margin:0;line-height:1.1}
+.range{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.units{display:flex;gap:4px;flex-wrap:wrap;background:var(--surface-2);padding:4px;border-radius:12px;align-self:flex-start;max-width:100%}
+.units button{padding:7px 13px;font-weight:700;border-radius:9px;color:var(--muted)}
+.units button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.range-nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nav-btn{width:42px;height:42px;flex:none;background:var(--surface-2);font-size:1.2rem;font-weight:800;border-radius:10px}
+.range-label{font-family:var(--display);font-size:1.25rem;font-weight:700;line-height:1.15;flex:1 1 160px;min-width:0}
+.range-inputs{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.range-inputs label{font-size:.78rem;color:var(--muted);font-weight:600}
+.range-inputs input{flex:1 1 140px}
+
+/* Jornadas anteriores */
+.shift-list{display:flex;flex-direction:column}
+.shift-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.shift-row:last-child{border-bottom:0}
+.shift-row .info{display:flex;flex-direction:column;min-width:0;flex:1 1 180px}
+.shift-row .info b{font-weight:700}
+.shift-row .info small{color:var(--muted);font-size:.8rem;font-variant-numeric:tabular-nums}
+.shift-row .money{font-family:var(--display);font-weight:700;font-size:1.1rem;font-variant-numeric:tabular-nums}
+.shift-row .btn{padding:7px 12px;font-size:.85rem}
 .sound-note{font-size:.8rem;color:var(--muted);margin:0}
 .sound-note b{color:var(--fg)}
 @media (prefers-reduced-motion:reduce){.car.done{animation:none}.bar i{transition:none}}
@@ -248,8 +308,8 @@ button.stat:hover{filter:brightness(.97)}
     </div>
     <div class="stats">
       <div class="stat"><b id="sOn">0</b><span>En pista</span></div>
-      <div class="stat"><b id="sCount">0</b><span>Turnos hoy</span></div>
-      <div class="stat"><b id="sMoney">$0</b><span>Recaudo hoy</span><small>Solo pagos completos</small></div>
+      <div class="stat"><b id="sCount">0</b><span>Turnos jornada</span></div>
+      <div class="stat"><b id="sMoney">$0</b><span>Recaudo jornada</span><small>Solo pagos completos</small></div>
       <button class="stat" id="sOwedBox" type="button"><b id="sOwed">$0</b><span>Por cobrar</span><small id="sDeposits">Abonos: $0</small></button>
     </div>
   </header>
@@ -262,6 +322,7 @@ button.stat:hover{filter:brightness(.97)}
   <div class="view" id="statsView" hidden></div>
 
   <div class="view" id="pistaView">
+  <div class="shift" id="shiftBar"></div>
   <div style="display:flex;justify-content:flex-end"><button class="btn-settings" id="toggleSettings" type="button" aria-expanded="false">⚙ Vehículos y tiempos</button></div>
 
   <section class="panel" id="settings" hidden>
@@ -295,12 +356,24 @@ button.stat:hover{filter:brightness(.97)}
   </div>
 </div>
 
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
 <script>
 (function(){
 /* En navegadores internos de otras apps (Instagram, Facebook, etc.) se mantiene el aviso para abrir en Safari/Chrome */
 var UA = navigator.userAgent || '';
 var IN_APP = /iPhone|iPad|iPod/.test(UA) && /FBAN|FBAV|FB_IAB|Instagram|Line\/|GSA\/|Snapchat|TikTok|musical_ly|Twitter/.test(UA);
 if (IN_APP){
+  /* En tu propio hosting, los botones apuntan a esta misma página */
+  try {
+    if (window.top===window && location.protocol==='https:' && !/claude\.ai/.test(location.host)){
+      var self_ = location.host + location.pathname;
+      var links = document.querySelectorAll('#noJs .open-btn');
+      links[0].href = 'x-safari-https://' + self_; links[1].href = 'googlechromes://' + self_; links[2].href = 'https://' + self_;
+      document.querySelector('#noJs .url').textContent = 'https://' + self_;
+    }
+  } catch(e){}
   document.getElementById('noJsTitle').textContent = 'Estás en el navegador de otra app';
   document.getElementById('noJsText').textContent = 'Aquí la alarma y los datos guardados pueden fallar. Ábrela en Safari o Chrome:';
 } else {
@@ -821,5 +894,3 @@ render();
 try { if (localStorage.getItem('pista-tab')==='stats') setTab('stats'); } catch(e){}
 })();
 </script>
-
-</body></html>
