@@ -1,0 +1,363 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Pista de Carritos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: control de pista — barra de resumen arriba, cuadrícula de carros con semáforo de estado */
+:root{
+  --bg:#f3f5ef; --surface:#ffffff; --surface-2:#e9ede3; --fg:#1d2419; --muted:#5f6b58; --line:#d5dccd;
+  --accent:#f2b705; --accent-ink:#2b2100;
+  --go:#1f9d55; --go-soft:#dcf3e5; --warn:#d98200; --warn-soft:#fdeccd; --stop:#d7263d; --stop-soft:#fbdde1;
+  --display:"Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141812; --surface:#1d231a; --surface-2:#262e22; --fg:#eef2ea; --muted:#9aa892; --line:#333d2e;
+  --accent:#f5c63a; --accent-ink:#2b2100;
+  --go:#3ccf7a; --go-soft:#173726; --warn:#f2a531; --warn-soft:#3b2b10; --stop:#ff5468; --stop-soft:#43161d; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#141812; --surface:#1d231a; --surface-2:#262e22; --fg:#eef2ea; --muted:#9aa892; --line:#333d2e;
+  --accent:#f5c63a; --accent-ink:#2b2100;
+  --go:#3ccf7a; --go-soft:#173726; --warn:#f2a531; --warn-soft:#3b2b10; --stop:#ff5468; --stop-soft:#43161d; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:16px 40px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;color:inherit;background:none}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+input{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+
+/* Encabezado */
+header{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px}
+.flag{width:40px;height:40px;border-radius:9px;flex:none;
+  background:conic-gradient(var(--fg) 25%, var(--surface) 0 50%, var(--fg) 0 75%, var(--surface) 0) 0 0/20px 20px;border:2px solid var(--fg)}
+h1{font-family:var(--display);font-weight:800;font-size:1.9rem;line-height:1;margin:0;text-wrap:balance}
+.sub{color:var(--muted);font-size:.85rem;margin-top:2px}
+.stats{display:flex;flex-wrap:wrap;gap:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 14px;display:flex;flex-direction:column;min-width:96px}
+.stat b{font-family:var(--display);font-size:1.35rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+.btn-settings{background:var(--surface);border:1px solid var(--line);padding:10px 14px;font-weight:600}
+.btn-settings:hover{background:var(--surface-2)}
+
+/* Cuadrícula */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.car{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;transition:border-color .2s, background .2s}
+.car-top{display:flex;align-items:center;gap:10px;min-width:0}
+.badge{width:44px;height:44px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.3rem;color:#fff;
+  box-shadow:inset 0 -4px 0 rgba(0,0,0,.18);text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.car-name{font-family:var(--display);font-weight:700;font-size:1.2rem;line-height:1.1;min-width:0;overflow-wrap:anywhere}
+.pill{margin-left:auto;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:99px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+
+.time{font-family:var(--display);font-weight:800;font-size:3.4rem;line-height:.95;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.time-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.time-meta{font-size:.8rem;color:var(--muted);text-align:right}
+.bar{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--go);border-radius:99px;transition:width .25s linear}
+
+.presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
+.preset{background:var(--surface-2);border:2px solid transparent;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;line-height:1.05}
+.preset b{font-family:var(--display);font-size:1.45rem}
+.preset small{font-size:.68rem;color:var(--muted);font-weight:600}
+.preset:hover{border-color:var(--go);background:var(--go-soft)}
+.idle-hint{font-size:.8rem;color:var(--muted)}
+
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions button{flex:1 1 auto;padding:11px 10px;font-weight:700;background:var(--surface-2)}
+.actions button:hover{filter:brightness(.96)}
+.actions .primary{background:var(--accent);color:var(--accent-ink)}
+.actions .danger{background:var(--stop);color:#fff}
+
+/* Estados */
+.car.running{border-color:var(--go)}
+.car.running .pill{background:var(--go-soft);color:var(--go)}
+.car.warn{border-color:var(--warn);background:linear-gradient(var(--warn-soft),var(--surface) 55%)}
+.car.warn .pill{background:var(--warn-soft);color:var(--warn)}
+.car.warn .bar i{background:var(--warn)}
+.car.paused .pill{background:var(--surface-2);color:var(--fg)}
+.car.paused .time{color:var(--muted)}
+.car.paused .bar i{background:var(--muted)}
+.car.done{border-color:var(--stop);background:var(--stop-soft)}
+.car.done .pill{background:var(--stop);color:#fff}
+.car.done .time{color:var(--stop)}
+.car.done{animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px color-mix(in srgb, var(--stop) 30%, transparent)}}
+
+/* Ajustes */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+.panel h2{font-family:var(--display);font-size:1.3rem;margin:0 0 4px}
+.panel p{margin:0 0 12px;color:var(--muted);font-size:.85rem;max-width:60ch}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;gap:8px;align-items:center}
+.row input[type=color]{width:42px;height:40px;padding:3px;flex:none}
+.row .grow{flex:1}
+.row .num{width:76px;flex:none}
+.row .price{width:110px;flex:none}
+.row label{font-size:.75rem;color:var(--muted)}
+.del{width:40px;height:40px;flex:none;background:var(--surface-2);font-weight:700;color:var(--stop)}
+.add{margin-top:10px;background:var(--surface-2);padding:10px 14px;font-weight:600}
+.add:hover,.del:hover{filter:brightness(.95)}
+.log{grid-column:1/-1}
+.log-list{max-height:220px;overflow:auto;font-size:.85rem;border-top:1px solid var(--line)}
+.log-list div{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.sound-note{font-size:.8rem;color:var(--muted)}
+.sound-note b{color:var(--fg)}
+@media (prefers-reduced-motion:reduce){.car.done{animation:none}.bar i{transition:none}}
+@media (max-width:420px){.time{font-size:2.9rem}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="flag" aria-hidden="true"></div>
+      <div>
+        <h1>Pista de Carritos</h1>
+        <div class="sub" id="today"></div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="sOn">0</b><span>En pista</span></div>
+      <div class="stat"><b id="sCount">0</b><span>Turnos hoy</span></div>
+      <div class="stat"><b id="sMoney">$0</b><span>Recaudo hoy</span></div>
+    </div>
+    <button class="btn-settings" id="toggleSettings" aria-expanded="false">⚙ Carros y tiempos</button>
+  </header>
+
+  <section class="panel" id="settings" hidden>
+    <div>
+      <h2>Carros</h2>
+      <p>El número y el color identifican cada carro en la pantalla. Usa el mismo color del carro real.</p>
+      <div class="rows" id="carRows"></div>
+      <button class="add" id="addCar">+ Agregar carro</button>
+    </div>
+    <div>
+      <h2>Tiempos de sesión</h2>
+      <p>Cada tiempo aparece como botón en los carros libres. Los precios son de ejemplo, cámbialos por los tuyos.</p>
+      <div class="rows" id="presetRows"></div>
+      <button class="add" id="addPreset">+ Agregar tiempo</button>
+    </div>
+    <div class="log">
+      <h2>Turnos de hoy</h2>
+      <div class="log-list" id="logList"></div>
+    </div>
+  </section>
+
+  <p class="sound-note" id="soundNote">Toca cualquier botón para activar el sonido. La alarma suena <b>al faltar 1 minuto</b> y <b>al terminar</b>, y repite hasta que recibas el carro.</p>
+
+  <main class="grid" id="grid"></main>
+</div>
+
+<script>
+const COP = new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0});
+const uid = () => Math.random().toString(36).slice(2,9);
+const COLORS = ['#e63946','#1d70e0','#2a9d4b','#f2b705','#8e44ad','#ff7a1a','#14b8c4','#e84393'];
+const NAMES  = ['Rojo','Azul','Verde','Amarillo','Morado','Naranja','Turquesa','Rosado'];
+
+const defaults = () => ({
+  cars: NAMES.slice(0,6).map((n,i)=>({id:uid(), name:n, color:COLORS[i]})),
+  presets: [{id:uid(),min:5,price:5000},{id:uid(),min:8,price:7000},{id:uid(),min:10,price:9000},{id:uid(),min:15,price:12000}],
+  timers: {}, log: []
+});
+
+let S;
+try { S = JSON.parse(localStorage.getItem('pista-v1')) || defaults(); } catch(e){ S = defaults(); }
+S.timers ||= {}; S.log ||= [];
+const save = () => { try { localStorage.setItem('pista-v1', JSON.stringify(S)); } catch(e){} };
+
+/* ---------- Sonido ---------- */
+let AC = null;
+function unlockAudio(){
+  if (!AC) { try { AC = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} }
+  if (AC && AC.state === 'suspended') AC.resume();
+  document.getElementById('soundNote').hidden = true;
+  requestWake();
+}
+function beep(freq=880, dur=.18, delay=0){
+  if (!AC) return;
+  const t = AC.currentTime + delay, o = AC.createOscillator(), g = AC.createGain();
+  o.type='square'; o.frequency.value=freq;
+  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(.25,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g).connect(AC.destination); o.start(t); o.stop(t+dur+.05);
+}
+const warnSound = () => { beep(660,.15); beep(660,.15,.25); };
+const doneSound = () => { [0,.3,.6].forEach(d=>beep(990,.22,d)); beep(1320,.5,.95); };
+
+/* ---------- Pantalla encendida ---------- */
+let wake = null;
+async function requestWake(){
+  try { if ('wakeLock' in navigator && !wake) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release',()=>wake=null); } } catch(e){}
+}
+document.addEventListener('visibilitychange',()=>{ if (document.visibilityState==='visible') requestWake(); });
+
+/* ---------- Utilidades ---------- */
+const fmt = ms => { const s = Math.max(0,Math.ceil(ms/1000)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+const fmtUp = ms => { const s = Math.max(0,Math.floor(ms/1000)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+const dayKey = ts => new Date(ts).toLocaleDateString('es-CO');
+const hhmm = ts => new Date(ts).toLocaleTimeString('es-CO',{hour:'numeric',minute:'2-digit'});
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function remaining(t, now=Date.now()){ return t.status==='running' ? t.endAt-now : t.remaining; }
+
+/* ---------- Acciones ---------- */
+function startCar(carId, presetId){
+  const p = S.presets.find(x=>x.id===presetId); if(!p) return;
+  const ms = p.min*60000, now = Date.now();
+  S.timers[carId] = {status:'running', endAt:now+ms, total:ms, min:p.min, warned:false, lastAlarm:0};
+  const car = S.cars.find(c=>c.id===carId);
+  S.log.unshift({ts:now, car:car?car.name:'?', min:p.min, price:Number(p.price)||0});
+  S.log = S.log.slice(0,600);
+  save(); render();
+}
+function pauseCar(id){ const t=S.timers[id]; if(!t) return; t.remaining=t.endAt-Date.now(); t.status='paused'; save(); render(); }
+function resumeCar(id){ const t=S.timers[id]; if(!t) return; t.endAt=Date.now()+t.remaining; t.status='running'; save(); render(); }
+function addMin(id){
+  const t=S.timers[id]; if(!t) return;
+  if (t.status==='running') t.endAt+=60000; else if (t.status==='paused') t.remaining+=60000;
+  else if (t.status==='done') { t.status='running'; t.endAt=Date.now()+60000; }
+  t.total+=60000; if (remaining(t)>60000) t.warned=false;
+  save(); render();
+}
+function stopCar(id){ delete S.timers[id]; save(); render(); }
+
+/* ---------- Render ---------- */
+function cardHTML(car, i){
+  const t = S.timers[car.id];
+  const badge = `<div class="badge" style="background:${esc(car.color)}">${i+1}</div>`;
+  if (!t){
+    return `<article class="car idle" data-id="${car.id}">
+      <div class="car-top">${badge}<div class="car-name">${esc(car.name)}</div><span class="pill">Libre</span></div>
+      <div class="idle-hint">Elige el tiempo para arrancar:</div>
+      <div class="presets">${S.presets.map(p=>`<button class="preset" data-act="start" data-preset="${p.id}"><b>${p.min}</b><small>min</small></button>`).join('')}</div>
+    </article>`;
+  }
+  const pillTxt = {running:'En pista',paused:'Pausado',done:'Tiempo'}[t.status];
+  const btns = t.status==='done'
+    ? `<button class="danger" data-act="stop">Recibir carro</button><button data-act="add">+1 min</button>`
+    : `${t.status==='running'?`<button data-act="pause">Pausar</button>`:`<button class="primary" data-act="resume">Seguir</button>`}
+       <button data-act="add">+1 min</button><button data-act="stop">Terminar</button>`;
+  return `<article class="car ${t.status}" data-id="${car.id}">
+    <div class="car-top">${badge}<div class="car-name">${esc(car.name)}</div><span class="pill">${pillTxt}</span></div>
+    <div class="time-row"><div class="time" data-time>0:00</div><div class="time-meta" data-meta></div></div>
+    <div class="bar"><i data-bar></i></div>
+    <div class="actions">${btns}</div>
+  </article>`;
+}
+
+function render(){
+  document.getElementById('grid').innerHTML = S.cars.length
+    ? S.cars.map(cardHTML).join('')
+    : `<p class="idle-hint">No hay carros. Ábrelos en “Carros y tiempos” y agrega el primero.</p>`;
+  renderStats(); tick(true);
+  if (!document.getElementById('settings').hidden) renderSettings();
+}
+
+function renderStats(){
+  const today = dayKey(Date.now());
+  const todays = S.log.filter(l=>dayKey(l.ts)===today);
+  document.getElementById('sOn').textContent = Object.values(S.timers).filter(t=>t.status!=='done').length;
+  document.getElementById('sCount').textContent = todays.length;
+  document.getElementById('sMoney').textContent = COP.format(todays.reduce((a,l)=>a+l.price,0));
+  document.getElementById('today').textContent = new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'});
+}
+
+function tick(fromRender){
+  const now = Date.now(); let changed = false;
+  for (const car of S.cars){
+    const t = S.timers[car.id]; if(!t) continue;
+    const el = document.querySelector(`.car[data-id="${car.id}"]`);
+    if (t.status==='running'){
+      const rem = t.endAt-now;
+      if (rem<=0){ t.status='done'; t.doneAt=t.endAt; t.lastAlarm=now; doneSound(); changed=true; continue; }
+      if (rem<=60000 && !t.warned){ t.warned=true; warnSound(); save(); }
+      if (el){
+        el.classList.toggle('warn', rem<=60000);
+        el.querySelector('[data-time]').textContent = fmt(rem);
+        el.querySelector('[data-meta]').innerHTML = `Sesión ${Math.round(t.total/60000)} min<br>Sale ${hhmm(t.endAt)}`;
+        el.querySelector('[data-bar]').style.width = (rem/t.total*100).toFixed(1)+'%';
+      }
+    } else if (t.status==='paused'){
+      if (el){
+        el.querySelector('[data-time]').textContent = fmt(t.remaining);
+        el.querySelector('[data-meta]').innerHTML = `Sesión ${Math.round(t.total/60000)} min<br>En pausa`;
+        el.querySelector('[data-bar]').style.width = (t.remaining/t.total*100).toFixed(1)+'%';
+      }
+    } else if (t.status==='done'){
+      if (now - (t.lastAlarm||0) > 15000){ t.lastAlarm=now; doneSound(); }
+      if (el){
+        el.querySelector('[data-time]').textContent = '+'+fmtUp(now-t.doneAt);
+        el.querySelector('[data-meta]').innerHTML = `Tiempo extra<br>Terminó ${hhmm(t.doneAt)}`;
+        el.querySelector('[data-bar]').style.width = '100%';
+      }
+    }
+  }
+  if (changed){ save(); if(!fromRender) render(); }
+}
+setInterval(()=>tick(false), 250);
+
+/* ---------- Eventos tarjetas ---------- */
+document.addEventListener('pointerdown', unlockAudio, {passive:true});
+document.getElementById('grid').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-act]'); if(!b) return;
+  const id = b.closest('.car').dataset.id;
+  ({start:()=>startCar(id,b.dataset.preset), pause:()=>pauseCar(id), resume:()=>resumeCar(id), add:()=>addMin(id), stop:()=>stopCar(id)})[b.dataset.act]();
+});
+
+/* ---------- Ajustes ---------- */
+const tgl = document.getElementById('toggleSettings');
+tgl.addEventListener('click',()=>{
+  const p = document.getElementById('settings'); p.hidden = !p.hidden;
+  tgl.setAttribute('aria-expanded', String(!p.hidden)); if(!p.hidden) renderSettings();
+});
+
+function renderSettings(){
+  const a = document.activeElement, keep = a && a.id;
+  document.getElementById('carRows').innerHTML = S.cars.map((c,i)=>`
+    <div class="row" data-car="${c.id}">
+      <input type="color" id="cc-${c.id}" value="${esc(c.color)}" aria-label="Color del carro ${i+1}" data-f="color">
+      <input class="grow" id="cn-${c.id}" value="${esc(c.name)}" aria-label="Nombre del carro ${i+1}" data-f="name">
+      <button class="del" data-del="car" aria-label="Quitar ${esc(c.name)}" ${S.timers[c.id]?'disabled title="Está en pista"':''}>✕</button>
+    </div>`).join('');
+  document.getElementById('presetRows').innerHTML = S.presets.map(p=>`
+    <div class="row" data-preset="${p.id}">
+      <input class="num" type="number" min="1" max="120" id="pm-${p.id}" value="${p.min}" aria-label="Minutos" data-f="min"><label>min</label>
+      <input class="price" type="number" min="0" step="500" id="pp-${p.id}" value="${p.price}" aria-label="Precio" data-f="price"><label>COP</label>
+      <span class="grow"></span>
+      <button class="del" data-del="preset" aria-label="Quitar ${p.min} minutos">✕</button>
+    </div>`).join('');
+  const today = dayKey(Date.now());
+  const todays = S.log.filter(l=>dayKey(l.ts)===today);
+  document.getElementById('logList').innerHTML = todays.length
+    ? todays.map(l=>`<div><span>${hhmm(l.ts)} · ${esc(l.car)}</span><span>${l.min} min · ${COP.format(l.price)}</span></div>`).join('')
+    : `<div><span>Aún no hay turnos hoy.</span></div>`;
+  if (keep){ const el=document.getElementById(keep); if(el) el.focus(); }
+}
+
+document.getElementById('settings').addEventListener('change', e=>{
+  const inp = e.target, f = inp.dataset.f; if(!f) return;
+  const cr = inp.closest('[data-car]'), pr = inp.closest('[data-preset]');
+  if (cr){ const c=S.cars.find(x=>x.id===cr.dataset.car); c[f]=inp.value || c[f]; }
+  if (pr){ const p=S.presets.find(x=>x.id===pr.dataset.preset); const v=Number(inp.value);
+    if (f==='min' && v>0) p.min=v; if (f==='price' && v>=0) p.price=v;
+    S.presets.sort((a,b)=>a.min-b.min); }
+  save(); render();
+});
+document.getElementById('settings').addEventListener('click', e=>{
+  const d = e.target.closest('[data-del]'); if(!d) return;
+  if (d.dataset.del==='car'){ const id=d.closest('[data-car]').dataset.car; S.cars=S.cars.filter(c=>c.id!==id); }
+  else { if (S.presets.length<=1) return; const id=d.closest('[data-preset]').dataset.preset; S.presets=S.presets.filter(p=>p.id!==id); }
+  save(); render();
+});
+document.getElementById('addCar').addEventListener('click',()=>{
+  const n=S.cars.length; S.cars.push({id:uid(), name:NAMES[n%NAMES.length], color:COLORS[n%COLORS.length]}); save(); render();
+});
+document.getElementById('addPreset').addEventListener('click',()=>{
+  const last = S.presets[S.presets.length-1]; S.presets.push({id:uid(), min:(last?last.min:5)+5, price:last?last.price:5000}); save(); render();
+});
+
+render();
+</script>
+
+</body></html>
