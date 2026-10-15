@@ -1,33 +1,42 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Pista de Carritos</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pista">
+<meta name="format-detection" content="telephone=no">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: control de pista — barra de resumen arriba, cuadrícula de carros con semáforo de estado */
+/* Layout: control de pista — resumen arriba, cuadrícula de vehículos con semáforo de estado y estado de pago */
 :root{
   --bg:#f3f5ef; --surface:#ffffff; --surface-2:#e9ede3; --fg:#1d2419; --muted:#5f6b58; --line:#d5dccd;
   --accent:#f2b705; --accent-ink:#2b2100;
-  --go:#1f9d55; --go-soft:#dcf3e5; --warn:#d98200; --warn-soft:#fdeccd; --stop:#d7263d; --stop-soft:#fbdde1;
+  --go:#1f9d55; --go-soft:#dcf3e5; --warn:#c77700; --warn-soft:#fdeccd; --stop:#d7263d; --stop-soft:#fbdde1; --stop-glow:rgba(215,38,61,.28);
   --display:"Baloo 2", "Trebuchet MS", system-ui, sans-serif;
   --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#141812; --surface:#1d231a; --surface-2:#262e22; --fg:#eef2ea; --muted:#9aa892; --line:#333d2e;
   --accent:#f5c63a; --accent-ink:#2b2100;
-  --go:#3ccf7a; --go-soft:#173726; --warn:#f2a531; --warn-soft:#3b2b10; --stop:#ff5468; --stop-soft:#43161d; color-scheme:dark }}
+  --go:#3ccf7a; --go-soft:#173726; --warn:#f2a531; --warn-soft:#3b2b10; --stop:#ff5468; --stop-soft:#43161d; --stop-glow:rgba(255,84,104,.3); color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#141812; --surface:#1d231a; --surface-2:#262e22; --fg:#eef2ea; --muted:#9aa892; --line:#333d2e;
   --accent:#f5c63a; --accent-ink:#2b2100;
-  --go:#3ccf7a; --go-soft:#173726; --warn:#f2a531; --warn-soft:#3b2b10; --stop:#ff5468; --stop-soft:#43161d; color-scheme:dark }
+  --go:#3ccf7a; --go-soft:#173726; --warn:#f2a531; --warn-soft:#3b2b10; --stop:#ff5468; --stop-soft:#43161d; --stop-glow:rgba(255,84,104,.3); color-scheme:dark }
 
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45;
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent;
   padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:16px 40px}
 .wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
-button{font:inherit;cursor:pointer;border:0;border-radius:10px;color:inherit;background:none}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;color:inherit;background:none;touch-action:manipulation;-webkit-appearance:none;appearance:none}
+button:disabled{opacity:.4;cursor:not-allowed}
 button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-input{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+input{font:inherit;font-size:16px;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0;-webkit-appearance:none;appearance:none}
+input[type=color]{-webkit-appearance:auto;appearance:auto}
+svg.ico{width:1em;height:1em;flex:none}
+
+.nojs{background:var(--warn-soft);border:2px solid var(--warn);border-radius:14px;padding:14px 16px;font-weight:600}
 
 /* Encabezado */
 header{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;justify-content:space-between}
@@ -37,19 +46,31 @@ header{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;justify-cont
 h1{font-family:var(--display);font-weight:800;font-size:1.9rem;line-height:1;margin:0;text-wrap:balance}
 .sub{color:var(--muted);font-size:.85rem;margin-top:2px}
 .stats{display:flex;flex-wrap:wrap;gap:8px}
-.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 14px;display:flex;flex-direction:column;min-width:96px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 14px;display:flex;flex-direction:column;align-items:flex-start;min-width:96px;text-align:left}
 .stat b{font-family:var(--display);font-size:1.35rem;line-height:1.1;font-variant-numeric:tabular-nums}
 .stat span{font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+.stat small{font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.stat.owed{border-color:var(--warn);background:var(--warn-soft)}
+.stat.owed b{color:var(--warn)}
+button.stat:hover{filter:brightness(.97)}
 .btn-settings{background:var(--surface);border:1px solid var(--line);padding:10px 14px;font-weight:600}
 .btn-settings:hover{background:var(--surface-2)}
 
+/* Filtro por tipo */
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filters button{background:var(--surface);border:1px solid var(--line);padding:7px 14px;font-weight:600;display:flex;align-items:center;gap:6px;border-radius:99px}
+.filters button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
 /* Cuadrícula */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
-.car{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;transition:border-color .2s, background .2s}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.car{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:12px;position:relative;transition:border-color .2s, background .2s}
 .car-top{display:flex;align-items:center;gap:10px;min-width:0}
-.badge{width:44px;height:44px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.3rem;color:#fff;
-  box-shadow:inset 0 -4px 0 rgba(0,0,0,.18);text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.badge{width:50px;height:50px;border-radius:14px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;
+  box-shadow:inset 0 -4px 0 rgba(0,0,0,.18);text-shadow:0 1px 2px rgba(0,0,0,.35);line-height:1}
+.badge svg{width:26px;height:26px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+.badge b{font-family:var(--display);font-weight:800;font-size:.95rem;margin-top:1px}
 .car-name{font-family:var(--display);font-weight:700;font-size:1.2rem;line-height:1.1;min-width:0;overflow-wrap:anywhere}
+.car-kind{display:block;font-family:var(--body);font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
 .pill{margin-left:auto;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:99px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
 
 .time{font-family:var(--display);font-weight:800;font-size:3.4rem;line-height:.95;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
@@ -65,11 +86,35 @@ h1{font-family:var(--display);font-weight:800;font-size:1.9rem;line-height:1;mar
 .preset:hover{border-color:var(--go);background:var(--go-soft)}
 .idle-hint{font-size:.8rem;color:var(--muted)}
 
+/* Confirmación de pago antes de arrancar */
+.confirm{display:flex;flex-direction:column;gap:10px;background:var(--surface-2);border-radius:14px;padding:12px}
+.confirm-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.confirm-head b{font-family:var(--display);font-size:1.5rem;line-height:1}
+.confirm-head span{font-weight:700;font-variant-numeric:tabular-nums}
+.confirm-q{font-size:.75rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+.pay-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.opt{background:var(--surface);border:2px solid var(--line);padding:8px 4px;font-weight:700;display:flex;flex-direction:column;align-items:center;line-height:1.15;font-size:.9rem}
+.opt small{font-weight:600;font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.opt[aria-pressed="true"]{border-color:var(--fg);background:var(--fg);color:var(--bg)}
+.opt[aria-pressed="true"] small{color:var(--bg);opacity:.8}
+.other-row{display:flex;align-items:center;gap:8px}
+.other-row input{flex:1}
+.other-row label{font-size:.8rem;color:var(--muted);font-weight:600}
+.confirm-note{font-size:.8rem;color:var(--warn);font-weight:600}
+
 .actions{display:flex;gap:8px;flex-wrap:wrap}
 .actions button{flex:1 1 auto;padding:11px 10px;font-weight:700;background:var(--surface-2)}
+.confirm .actions button{background:var(--surface)}
 .actions button:hover{filter:brightness(.96)}
-.actions .primary{background:var(--accent);color:var(--accent-ink)}
+.actions .primary,.confirm .actions .primary{background:var(--accent);color:var(--accent-ink)}
 .actions .danger{background:var(--stop);color:#fff}
+
+/* Chip de pago */
+.pay{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.85rem;font-weight:700;border-radius:10px;padding:8px 10px;font-variant-numeric:tabular-nums}
+.pay.ok{background:var(--go-soft);color:var(--go)}
+.pay.debt{background:var(--warn-soft);color:var(--warn);border:1.5px dashed var(--warn)}
+.pay.debt button{background:var(--warn);color:#fff;padding:6px 10px;font-weight:700;font-size:.8rem;border-radius:8px}
+.pay.debt button.sure{background:var(--go)}
 
 /* Estados */
 .car.running{border-color:var(--go)}
@@ -80,36 +125,119 @@ h1{font-family:var(--display);font-weight:800;font-size:1.9rem;line-height:1;mar
 .car.paused .pill{background:var(--surface-2);color:var(--fg)}
 .car.paused .time{color:var(--muted)}
 .car.paused .bar i{background:var(--muted)}
-.car.done{border-color:var(--stop);background:var(--stop-soft)}
+.car.done{border-color:var(--stop);background:var(--stop-soft);animation:pulse 1.2s ease-in-out infinite}
 .car.done .pill{background:var(--stop);color:#fff}
 .car.done .time{color:var(--stop)}
-.car.done{animation:pulse 1.2s ease-in-out infinite}
-@keyframes pulse{50%{box-shadow:0 0 0 6px color-mix(in srgb, var(--stop) 30%, transparent)}}
+@keyframes pulse{50%{box-shadow:0 0 0 6px var(--stop-glow)}}
 
 /* Ajustes */
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
 .panel h2{font-family:var(--display);font-size:1.3rem;margin:0 0 4px}
 .panel p{margin:0 0 12px;color:var(--muted);font-size:.85rem;max-width:60ch}
 .rows{display:flex;flex-direction:column;gap:8px}
-.row{display:flex;gap:8px;align-items:center}
+.row{display:flex;gap:8px;align-items:center;min-width:0}
 .row input[type=color]{width:42px;height:40px;padding:3px;flex:none}
-.row .grow{flex:1}
-.row .num{width:76px;flex:none}
-.row .price{width:110px;flex:none}
+.row .grow{flex:1;min-width:0}
+.row .num{width:72px;flex:none}
+.row .price{width:104px;flex:none}
 .row label{font-size:.75rem;color:var(--muted)}
+.kind-btn{width:44px;height:40px;flex:none;background:var(--surface-2);display:grid;place-items:center;font-size:22px}
 .del{width:40px;height:40px;flex:none;background:var(--surface-2);font-weight:700;color:var(--stop)}
-.add{margin-top:10px;background:var(--surface-2);padding:10px 14px;font-weight:600}
-.add:hover,.del:hover{filter:brightness(.95)}
+.add-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.add{background:var(--surface-2);padding:10px 14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.add:hover,.del:hover,.kind-btn:hover{filter:brightness(.95)}
 .log{grid-column:1/-1}
-.log-list{max-height:220px;overflow:auto;font-size:.85rem;border-top:1px solid var(--line)}
-.log-list div{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
-.sound-note{font-size:.8rem;color:var(--muted)}
+.log-list{max-height:280px;overflow:auto;font-size:.85rem;border-top:1px solid var(--line);-webkit-overflow-scrolling:touch}
+.log-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;flex-wrap:wrap}
+.log-item .who{display:flex;align-items:center;gap:6px;min-width:0}
+.log-item .amt{display:flex;align-items:center;gap:8px;margin-left:auto}
+.log-item .tag-ok{color:var(--go);font-weight:700}
+.log-item .tag-debt{color:var(--warn);font-weight:700}
+.log-item button{background:var(--warn);color:#fff;padding:5px 10px;font-weight:700;font-size:.78rem;border-radius:8px}
+.log-item button.sure{background:var(--go)}
+/* Aviso para abrir en navegador */
+.nojs b{font-family:var(--display);font-size:1.2rem;display:block}
+.nojs p{margin:4px 0 10px;font-weight:500}
+.open-btns{display:flex;flex-wrap:wrap;gap:8px}
+.open-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;border-radius:12px;background:var(--fg);color:var(--bg);font-weight:700;text-decoration:none;flex:1 1 140px;text-align:center}
+.open-btn.alt{background:var(--surface);color:var(--fg);border:1px solid var(--line)}
+.nojs small{display:block;margin-top:10px;font-weight:500;color:var(--muted)}
+.nojs .url{user-select:all;-webkit-user-select:all;word-break:break-all;color:var(--fg);font-weight:700}
+
+/* Pestañas */
+.tabs{display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:14px;align-self:flex-start;max-width:100%}
+.tabs button{padding:9px 18px;font-weight:700;border-radius:10px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.tab-alert{background:var(--stop);color:#fff;border-radius:99px;font-size:.72rem;min-width:20px;height:20px;padding:0 6px;display:inline-grid;place-items:center}
+.view{display:flex;flex-direction:column;gap:18px}
+
+/* Estadísticas */
+.periods{display:flex;gap:6px;flex-wrap:wrap}
+.periods button{background:var(--surface);border:1px solid var(--line);padding:7px 14px;font-weight:600;border-radius:99px}
+.periods button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi span{font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+.kpi b{font-family:var(--display);font-size:1.6rem;line-height:1.1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kpi small{font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.kpi.hl{background:var(--go-soft);border-color:var(--go)}
+.kpi.hl b{color:var(--go)}
+.kpi.owed{background:var(--warn-soft);border-color:var(--warn)}
+.kpi.owed b{color:var(--warn)}
+.insights{background:var(--surface);border:2px solid var(--accent);border-radius:16px;padding:14px 16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px}
+.insight{display:flex;flex-direction:column;min-width:0}
+.insight span{font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+.insight b{font-family:var(--display);font-size:1.15rem;line-height:1.2;display:flex;align-items:center;gap:6px;overflow-wrap:anywhere}
+.insight small{font-size:.78rem;color:var(--muted)}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.chart-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.chart-card.wide{grid-column:1/-1}
+.chart-card h3{font-family:var(--display);font-size:1.1rem;margin:0;line-height:1.2}
+.chart-card .hint{font-size:.78rem;color:var(--muted);margin:-6px 0 0}
+.cols-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cols{display:flex;align-items:stretch;gap:4px;height:190px;min-width:100%}
+.col{flex:1 0 16px;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:16px}
+.col .cv{font-size:.66rem;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;height:14px;white-space:nowrap}
+.col .track{flex:1;width:100%;display:flex;align-items:flex-end;background:linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 25%;border-bottom:1px solid var(--line)}
+.col i{display:block;width:100%;background:var(--go);border-radius:5px 5px 1px 1px;min-height:0}
+.col.top i{background:var(--accent)}
+.col.top .cv{color:var(--fg)}
+.col .cl{font-size:.66rem;color:var(--muted);height:14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.hbars{display:flex;flex-direction:column;gap:9px}
+.hbar{display:grid;grid-template-columns:minmax(80px,32%) 1fr;gap:4px 10px;align-items:center}
+.hbar .hl{display:flex;align-items:center;gap:6px;font-weight:600;font-size:.88rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbar .dot{width:12px;height:12px;border-radius:4px;flex:none}
+.hbar .ht{height:12px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.hbar .ht i{display:block;height:100%;background:var(--go);border-radius:99px}
+.hbar .hv{grid-column:2;font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:-2px}
+.split{display:flex;height:34px;border-radius:10px;overflow:hidden;background:var(--surface-2)}
+.split div{display:flex;align-items:center;justify-content:center;gap:6px;color:#fff;font-weight:700;font-size:.85rem;min-width:0;overflow:hidden;white-space:nowrap}
+.split .s-car{background:var(--go)}
+.split .s-moto{background:var(--warn)}
+.split-legend{display:flex;justify-content:space-between;gap:10px;font-size:.82rem;flex-wrap:wrap}
+.split-legend span{display:flex;align-items:center;gap:6px}
+.empty-stats{background:var(--surface);border:2px dashed var(--line);border-radius:16px;padding:28px 18px;text-align:center;color:var(--muted)}
+.empty-stats b{display:block;font-family:var(--display);font-size:1.3rem;color:var(--fg)}
+.sound-note{font-size:.8rem;color:var(--muted);margin:0}
 .sound-note b{color:var(--fg)}
 @media (prefers-reduced-motion:reduce){.car.done{animation:none}.bar i{transition:none}}
-@media (max-width:420px){.time{font-size:2.9rem}}
+@media (max-width:420px){.time{font-size:2.9rem}.stat{min-width:0;flex:1 1 40%}}
 </style>
 
 <div class="wrap">
+  <!-- ENLACE DE LA APP: si subes este archivo a un hosting (Netlify, GitHub Pages), reemplaza
+       "claude.ai/artifact/XHbiiFwc6VzJQHjods4gTh" en los 4 lugares de abajo por tu nuevo enlace (sin https://). -->
+  <div class="nojs" id="noJs">
+    <b id="noJsTitle">Abre la app en un navegador</b>
+    <p id="noJsText">Estás viendo una vista previa del archivo y los botones no funcionan. Toca una opción para abrir la app completa:</p>
+    <div class="open-btns">
+      <a class="open-btn" href="x-safari-https://claude.ai/artifact/XHbiiFwc6VzJQHjods4gTh">Abrir en Safari</a>
+      <a class="open-btn" href="googlechromes://claude.ai/artifact/XHbiiFwc6VzJQHjods4gTh">Abrir en Chrome</a>
+      <a class="open-btn alt" href="https://claude.ai/artifact/XHbiiFwc6VzJQHjods4gTh" target="_blank" rel="noopener">Navegador predeterminado</a>
+    </div>
+    <small>Si ningún botón responde, mantén presionado este enlace, cópialo y pégalo en Safari: <span class="url">https://claude.ai/artifact/XHbiiFwc6VzJQHjods4gTh</span></small>
+  </div>
+
   <header>
     <div class="brand">
       <div class="flag" aria-hidden="true"></div>
@@ -121,243 +249,577 @@ h1{font-family:var(--display);font-weight:800;font-size:1.9rem;line-height:1;mar
     <div class="stats">
       <div class="stat"><b id="sOn">0</b><span>En pista</span></div>
       <div class="stat"><b id="sCount">0</b><span>Turnos hoy</span></div>
-      <div class="stat"><b id="sMoney">$0</b><span>Recaudo hoy</span></div>
+      <div class="stat"><b id="sMoney">$0</b><span>Recaudo hoy</span><small>Solo pagos completos</small></div>
+      <button class="stat" id="sOwedBox" type="button"><b id="sOwed">$0</b><span>Por cobrar</span><small id="sDeposits">Abonos: $0</small></button>
     </div>
-    <button class="btn-settings" id="toggleSettings" aria-expanded="false">⚙ Carros y tiempos</button>
   </header>
+
+  <div class="tabs" role="tablist" id="tabs">
+    <button type="button" role="tab" id="tab-pista" aria-selected="true" data-tab="pista">Pista <span class="tab-alert" id="tabAlert" hidden>0</span></button>
+    <button type="button" role="tab" id="tab-stats" aria-selected="false" data-tab="stats">Estadísticas</button>
+  </div>
+
+  <div class="view" id="statsView" hidden></div>
+
+  <div class="view" id="pistaView">
+  <div style="display:flex;justify-content:flex-end"><button class="btn-settings" id="toggleSettings" type="button" aria-expanded="false">⚙ Vehículos y tiempos</button></div>
 
   <section class="panel" id="settings" hidden>
     <div>
-      <h2>Carros</h2>
-      <p>El número y el color identifican cada carro en la pantalla. Usa el mismo color del carro real.</p>
+      <h2>Vehículos</h2>
+      <p>Toca el ícono para cambiar entre carro y moto. Usa el mismo color del vehículo real para reconocerlo rápido.</p>
       <div class="rows" id="carRows"></div>
-      <button class="add" id="addCar">+ Agregar carro</button>
+      <div class="add-row">
+        <button class="add" id="addCar" type="button"></button>
+        <button class="add" id="addMoto" type="button"></button>
+      </div>
     </div>
     <div>
       <h2>Tiempos de sesión</h2>
-      <p>Cada tiempo aparece como botón en los carros libres. Los precios son de ejemplo, cámbialos por los tuyos.</p>
+      <p>Cada tiempo aparece como botón en los vehículos libres. Los precios son de ejemplo, cámbialos por los tuyos.</p>
       <div class="rows" id="presetRows"></div>
-      <button class="add" id="addPreset">+ Agregar tiempo</button>
+      <div class="add-row"><button class="add" id="addPreset" type="button">+ Agregar tiempo</button></div>
     </div>
-    <div class="log">
-      <h2>Turnos de hoy</h2>
+    <div class="log" id="logBox">
+      <h2>Turnos y saldos</h2>
+      <p>Los turnos con abono quedan pendientes hasta que cobres el resto. Solo entonces suman al recaudo.</p>
       <div class="log-list" id="logList"></div>
     </div>
   </section>
 
-  <p class="sound-note" id="soundNote">Toca cualquier botón para activar el sonido. La alarma suena <b>al faltar 1 minuto</b> y <b>al terminar</b>, y repite hasta que recibas el carro.</p>
+  <div class="filters" id="filters"></div>
+
+  <p class="sound-note" id="soundNote">Toca cualquier botón para activar el sonido. La alarma suena <b>al faltar 1 minuto</b> y <b>al terminar</b>, y repite hasta que recibas el vehículo. En iPhone, quita el modo silencio para oírla.</p>
 
   <main class="grid" id="grid"></main>
+  </div>
 </div>
 
 <script>
-const COP = new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0});
-const uid = () => Math.random().toString(36).slice(2,9);
-const COLORS = ['#e63946','#1d70e0','#2a9d4b','#f2b705','#8e44ad','#ff7a1a','#14b8c4','#e84393'];
-const NAMES  = ['Rojo','Azul','Verde','Amarillo','Morado','Naranja','Turquesa','Rosado'];
+(function(){
+/* En navegadores internos de otras apps (Instagram, Facebook, etc.) se mantiene el aviso para abrir en Safari/Chrome */
+var UA = navigator.userAgent || '';
+var IN_APP = /iPhone|iPad|iPod/.test(UA) && /FBAN|FBAV|FB_IAB|Instagram|Line\/|GSA\/|Snapchat|TikTok|musical_ly|Twitter/.test(UA);
+if (IN_APP){
+  document.getElementById('noJsTitle').textContent = 'Estás en el navegador de otra app';
+  document.getElementById('noJsText').textContent = 'Aquí la alarma y los datos guardados pueden fallar. Ábrela en Safari o Chrome:';
+} else {
+  document.getElementById('noJs').hidden = true;
+}
 
-const defaults = () => ({
-  cars: NAMES.slice(0,6).map((n,i)=>({id:uid(), name:n, color:COLORS[i]})),
-  presets: [{id:uid(),min:5,price:5000},{id:uid(),min:8,price:7000},{id:uid(),min:10,price:9000},{id:uid(),min:15,price:12000}],
-  timers: {}, log: []
-});
+var ICON = {
+  carro: '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16.5v-4l2.2-4.5h8.6l4.2 4.5h2a1 1 0 0 1 1 1v3"/><path d="M4 12.5h16"/><path d="M10.5 8v4.5"/><circle cx="7" cy="16.5" r="2"/><circle cx="17" cy="16.5" r="2"/><path d="M9 16.5h6"/></svg>',
+  moto: '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="16" r="3"/><circle cx="19" cy="16" r="3"/><path d="M5 16l3.5-5.5h5.5l2.5 3"/><path d="M8.5 16h6l2-4.5"/><path d="M14.5 10.5l-1.5-3.5h-2.5"/><path d="M16 7h2.5l.5 2.5"/></svg>'
+};
+var KIND_LABEL = {carro:'Carro', moto:'Moto'};
 
-let S;
-try { S = JSON.parse(localStorage.getItem('pista-v1')) || defaults(); } catch(e){ S = defaults(); }
-S.timers ||= {}; S.log ||= [];
-const save = () => { try { localStorage.setItem('pista-v1', JSON.stringify(S)); } catch(e){} };
+var COP = new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0});
+function uid(){ return Math.random().toString(36).slice(2,9); }
+var COLORS = ['#e63946','#1d70e0','#2a9d4b','#f2b705','#8e44ad','#ff7a1a','#14b8c4','#e84393'];
+var NAMES  = ['Rojo','Azul','Verde','Amarillo','Morado','Naranja','Turquesa','Rosado'];
 
-/* ---------- Sonido ---------- */
-let AC = null;
+function defaults(){
+  var v = [];
+  for (var i=0;i<4;i++) v.push({id:uid(), name:NAMES[i], color:COLORS[i], type:'carro'});
+  for (var j=4;j<6;j++) v.push({id:uid(), name:NAMES[j], color:COLORS[j], type:'moto'});
+  return {
+    cars: v,
+    presets: [{id:uid(),min:5,price:5000},{id:uid(),min:8,price:7000},{id:uid(),min:10,price:9000},{id:uid(),min:15,price:12000}],
+    timers: {}, log: []
+  };
+}
+
+var S = null;
+try { S = JSON.parse(localStorage.getItem('pista-v1')); } catch(e){}
+if (!S || !S.cars) S = defaults();
+if (!S.timers) S.timers = {};
+if (!S.log) S.log = [];
+if (!S.presets || !S.presets.length) S.presets = defaults().presets;
+S.cars.forEach(function(c){ if (c.type!=='moto') c.type='carro'; });
+S.log.forEach(function(l){ if (!l.id) l.id=uid(); if (typeof l.paid!=='number') l.paid = l.price; if (!l.type) l.type='carro'; });
+function save(){ try { localStorage.setItem('pista-v1', JSON.stringify(S)); } catch(e){} }
+
+/* Estado de pantalla (no se guarda) */
+var UI = { pending:null, confirmSettle:null, filter:'todos', tab:'pista', period:'7' };
+
+/* ---------- Sonido (compatible con iPhone) ---------- */
+var AC = null, unlocked = false;
 function unlockAudio(){
-  if (!AC) { try { AC = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} }
-  if (AC && AC.state === 'suspended') AC.resume();
-  document.getElementById('soundNote').hidden = true;
+  try {
+    if (!AC) { var C = window.AudioContext || window.webkitAudioContext; if (C) AC = new C(); }
+    if (AC) {
+      if (AC.state !== 'running' && AC.resume) AC.resume();
+      if (!unlocked) {
+        var b = AC.createBuffer(1,1,22050), s = AC.createBufferSource();
+        s.buffer = b; s.connect(AC.destination); s.start(0); unlocked = true;
+        document.getElementById('soundNote').hidden = true;
+      }
+    }
+  } catch(e){}
   requestWake();
 }
-function beep(freq=880, dur=.18, delay=0){
+['touchend','click','keydown'].forEach(function(ev){ document.addEventListener(ev, unlockAudio, {passive:true}); });
+function beep(freq, dur, delay){
   if (!AC) return;
-  const t = AC.currentTime + delay, o = AC.createOscillator(), g = AC.createGain();
-  o.type='square'; o.frequency.value=freq;
-  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(.25,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
-  o.connect(g).connect(AC.destination); o.start(t); o.stop(t+dur+.05);
+  try {
+    var t = AC.currentTime + (delay||0), o = AC.createOscillator(), g = AC.createGain();
+    o.type='square'; o.frequency.value=freq;
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(.25,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t+dur+.05);
+  } catch(e){}
 }
-const warnSound = () => { beep(660,.15); beep(660,.15,.25); };
-const doneSound = () => { [0,.3,.6].forEach(d=>beep(990,.22,d)); beep(1320,.5,.95); };
+function buzz(p){ try { if (navigator.vibrate) navigator.vibrate(p); } catch(e){} }
+function warnSound(){ beep(660,.15,0); beep(660,.15,.25); buzz([150,100,150]); }
+function doneSound(){ [0,.3,.6].forEach(function(d){ beep(990,.22,d); }); beep(1320,.5,.95); buzz([300,150,300,150,600]); }
 
 /* ---------- Pantalla encendida ---------- */
-let wake = null;
-async function requestWake(){
-  try { if ('wakeLock' in navigator && !wake) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release',()=>wake=null); } } catch(e){}
+var wake = null;
+function requestWake(){
+  try {
+    if ('wakeLock' in navigator && !wake) {
+      navigator.wakeLock.request('screen').then(function(w){ wake=w; w.addEventListener('release',function(){ wake=null; }); }).catch(function(){});
+    }
+  } catch(e){}
 }
-document.addEventListener('visibilitychange',()=>{ if (document.visibilityState==='visible') requestWake(); });
+document.addEventListener('visibilitychange',function(){ if (document.visibilityState==='visible'){ requestWake(); tick(false); } });
 
 /* ---------- Utilidades ---------- */
-const fmt = ms => { const s = Math.max(0,Math.ceil(ms/1000)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
-const fmtUp = ms => { const s = Math.max(0,Math.floor(ms/1000)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
-const dayKey = ts => new Date(ts).toLocaleDateString('es-CO');
-const hhmm = ts => new Date(ts).toLocaleTimeString('es-CO',{hour:'numeric',minute:'2-digit'});
-const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-
-function remaining(t, now=Date.now()){ return t.status==='running' ? t.endAt-now : t.remaining; }
+function pad(n){ return (n<10?'0':'')+n; }
+function fmt(ms){ var s=Math.max(0,Math.ceil(ms/1000)); return Math.floor(s/60)+':'+pad(s%60); }
+function fmtUp(ms){ var s=Math.max(0,Math.floor(ms/1000)); return Math.floor(s/60)+':'+pad(s%60); }
+function dayKey(ts){ var d=new Date(ts); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+function hhmm(ts){ return new Date(ts).toLocaleTimeString('es-CO',{hour:'numeric',minute:'2-digit'}); }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function money(n){ return COP.format(n||0); }
+function debtOf(l){ return Math.max(0,(l.price||0)-(l.paid||0)); }
+function findLog(id){ for (var i=0;i<S.log.length;i++) if (S.log[i].id===id) return S.log[i]; return null; }
+function findCar(id){ for (var i=0;i<S.cars.length;i++) if (S.cars[i].id===id) return S.cars[i]; return null; }
+function findPreset(id){ for (var i=0;i<S.presets.length;i++) if (S.presets[i].id===id) return S.presets[i]; return null; }
+function numberOf(car){ var n=0; for (var i=0;i<S.cars.length;i++){ if (S.cars[i].type===car.type) n++; if (S.cars[i].id===car.id) return n; } return n; }
+function pendingAmount(p){
+  var price = Number(p.price)||0;
+  if (!UI.pending || UI.pending.mode==='full') return price;
+  if (UI.pending.mode==='half') return Math.round(price/2);
+  var v = Number(UI.pending.other); if (!(v>=0)) v = 0; return Math.min(v, price);
+}
 
 /* ---------- Acciones ---------- */
-function startCar(carId, presetId){
-  const p = S.presets.find(x=>x.id===presetId); if(!p) return;
-  const ms = p.min*60000, now = Date.now();
-  S.timers[carId] = {status:'running', endAt:now+ms, total:ms, min:p.min, warned:false, lastAlarm:0};
-  const car = S.cars.find(c=>c.id===carId);
-  S.log.unshift({ts:now, car:car?car.name:'?', min:p.min, price:Number(p.price)||0});
-  S.log = S.log.slice(0,600);
+function choosePreset(carId, presetId){ UI.pending = {carId:carId, presetId:presetId, mode:'full', other:''}; render(); }
+function setMode(mode){ if (!UI.pending) return; UI.pending.mode = mode; render(); if (mode==='other'){ var el=document.getElementById('ab-'+UI.pending.carId); if (el) el.focus(); } }
+function cancelPending(){ UI.pending = null; render(); }
+function startCar(carId){
+  var pd = UI.pending; if (!pd || pd.carId!==carId) return;
+  var p = findPreset(pd.presetId); if (!p) return;
+  var car = findCar(carId);
+  var ms = p.min*60000, now = Date.now(), logId = uid();
+  S.log.unshift({id:logId, ts:now, vid:carId, car:car?car.name:'?', type:car?car.type:'carro', min:p.min, price:Number(p.price)||0, paid:pendingAmount(p)});
+  S.log = S.log.slice(0,6000);
+  S.timers[carId] = {status:'running', endAt:now+ms, total:ms, warned:false, lastAlarm:0, logId:logId};
+  UI.pending = null;
   save(); render();
 }
-function pauseCar(id){ const t=S.timers[id]; if(!t) return; t.remaining=t.endAt-Date.now(); t.status='paused'; save(); render(); }
-function resumeCar(id){ const t=S.timers[id]; if(!t) return; t.endAt=Date.now()+t.remaining; t.status='running'; save(); render(); }
+function pauseCar(id){ var t=S.timers[id]; if(!t) return; t.remaining=t.endAt-Date.now(); t.status='paused'; save(); render(); }
+function resumeCar(id){ var t=S.timers[id]; if(!t) return; t.endAt=Date.now()+t.remaining; t.status='running'; save(); render(); }
 function addMin(id){
-  const t=S.timers[id]; if(!t) return;
-  if (t.status==='running') t.endAt+=60000; else if (t.status==='paused') t.remaining+=60000;
+  var t=S.timers[id]; if(!t) return;
+  if (t.status==='running') t.endAt+=60000;
+  else if (t.status==='paused') t.remaining+=60000;
   else if (t.status==='done') { t.status='running'; t.endAt=Date.now()+60000; }
-  t.total+=60000; if (remaining(t)>60000) t.warned=false;
+  t.total+=60000;
+  var rem = t.status==='running' ? t.endAt-Date.now() : t.remaining;
+  if (rem>60000) t.warned=false;
   save(); render();
 }
 function stopCar(id){ delete S.timers[id]; save(); render(); }
+function settle(logId){
+  if (UI.confirmSettle !== logId){ UI.confirmSettle = logId; render(); return; }
+  var l = findLog(logId); if (l) l.paid = l.price;
+  UI.confirmSettle = null; save(); render();
+}
 
 /* ---------- Render ---------- */
-function cardHTML(car, i){
-  const t = S.timers[car.id];
-  const badge = `<div class="badge" style="background:${esc(car.color)}">${i+1}</div>`;
+function payChip(l){
+  if (!l) return '';
+  var d = debtOf(l);
+  if (!d) return '<div class="pay ok"><span>✓ Pagado '+money(l.price)+'</span></div>';
+  var sure = UI.confirmSettle===l.id;
+  return '<div class="pay debt"><span>Abonó '+money(l.paid)+' · Debe '+money(d)+'</span>'+
+    '<button type="button" data-act="settle" data-log="'+l.id+'" class="'+(sure?'sure':'')+'">'+(sure?'¿Recibiste '+money(d)+'? Sí':'Cobrar saldo')+'</button></div>';
+}
+
+function badgeHTML(car){
+  return '<div class="badge" style="background:'+esc(car.color)+'">'+ICON[car.type]+'<b>'+numberOf(car)+'</b></div>';
+}
+function topHTML(car, pill){
+  return '<div class="car-top">'+badgeHTML(car)+'<div class="car-name"><span class="car-kind">'+KIND_LABEL[car.type]+' '+numberOf(car)+'</span>'+esc(car.name)+'</div><span class="pill">'+pill+'</span></div>';
+}
+
+function confirmHTML(car){
+  var p = findPreset(UI.pending.presetId); if (!p) return '';
+  var price = Number(p.price)||0, half = Math.round(price/2), m = UI.pending.mode;
+  var paid = pendingAmount(p), debt = price - paid;
+  function opt(mode,label,sub){ return '<button type="button" class="opt" data-act="mode" data-mode="'+mode+'" aria-pressed="'+(m===mode)+'">'+label+(sub?'<small>'+sub+'</small>':'')+'</button>'; }
+  return '<div class="confirm">'+
+    '<div class="confirm-head"><b>'+p.min+' min</b><span>'+money(price)+'</span></div>'+
+    '<div class="confirm-q">¿Cuánto pagó?</div>'+
+    '<div class="pay-opts">'+opt('full','Completo',money(price))+opt('half','Mitad',money(half))+opt('other','Otro','monto')+'</div>'+
+    (m==='other' ? '<div class="other-row"><label for="ab-'+car.id+'">Abono</label><input type="number" inputmode="numeric" min="0" step="500" id="ab-'+car.id+'" value="'+esc(UI.pending.other)+'" placeholder="0" data-other></div>' : '')+
+    (debt>0 ? '<div class="confirm-note" data-note>Queda debiendo '+money(debt)+'</div>' : '<div class="confirm-note" data-note hidden></div>')+
+    '<div class="actions"><button type="button" data-act="cancel">Cancelar</button><button type="button" class="primary" data-act="go">▶ Arrancar</button></div>'+
+  '</div>';
+}
+
+function cardHTML(car){
+  var t = S.timers[car.id];
   if (!t){
-    return `<article class="car idle" data-id="${car.id}">
-      <div class="car-top">${badge}<div class="car-name">${esc(car.name)}</div><span class="pill">Libre</span></div>
-      <div class="idle-hint">Elige el tiempo para arrancar:</div>
-      <div class="presets">${S.presets.map(p=>`<button class="preset" data-act="start" data-preset="${p.id}"><b>${p.min}</b><small>min</small></button>`).join('')}</div>
-    </article>`;
+    var pend = S.log.filter(function(l){ return l.vid===car.id && debtOf(l)>0; });
+    var debtHTML = pend.map(payChip).join('');
+    var body = (UI.pending && UI.pending.carId===car.id)
+      ? confirmHTML(car)
+      : '<div class="idle-hint">Elige el tiempo para arrancar:</div><div class="presets">'+
+        S.presets.map(function(p){ return '<button type="button" class="preset" data-act="pick" data-preset="'+p.id+'"><b>'+p.min+'</b><small>min</small></button>'; }).join('')+'</div>';
+    return '<article class="car idle" data-id="'+car.id+'">'+topHTML(car,'Libre')+debtHTML+body+'</article>';
   }
-  const pillTxt = {running:'En pista',paused:'Pausado',done:'Tiempo'}[t.status];
-  const btns = t.status==='done'
-    ? `<button class="danger" data-act="stop">Recibir carro</button><button data-act="add">+1 min</button>`
-    : `${t.status==='running'?`<button data-act="pause">Pausar</button>`:`<button class="primary" data-act="resume">Seguir</button>`}
-       <button data-act="add">+1 min</button><button data-act="stop">Terminar</button>`;
-  return `<article class="car ${t.status}" data-id="${car.id}">
-    <div class="car-top">${badge}<div class="car-name">${esc(car.name)}</div><span class="pill">${pillTxt}</span></div>
-    <div class="time-row"><div class="time" data-time>0:00</div><div class="time-meta" data-meta></div></div>
-    <div class="bar"><i data-bar></i></div>
-    <div class="actions">${btns}</div>
-  </article>`;
+  var pillTxt = {running:'En pista',paused:'Pausado',done:'Tiempo'}[t.status];
+  var btns = t.status==='done'
+    ? '<button type="button" class="danger" data-act="stop">Recibir '+(car.type==='moto'?'moto':'carro')+'</button><button type="button" data-act="add">+1 min</button>'
+    : (t.status==='running' ? '<button type="button" data-act="pause">Pausar</button>' : '<button type="button" class="primary" data-act="resume">Seguir</button>')+
+      '<button type="button" data-act="add">+1 min</button><button type="button" data-act="stop">Terminar</button>';
+  return '<article class="car '+t.status+'" data-id="'+car.id+'">'+topHTML(car,pillTxt)+
+    '<div class="time-row"><div class="time" data-time>0:00</div><div class="time-meta" data-meta></div></div>'+
+    '<div class="bar"><i data-bar></i></div>'+
+    payChip(findLog(t.logId))+
+    '<div class="actions">'+btns+'</div></article>';
+}
+
+function renderFilters(){
+  var nc = S.cars.filter(function(c){return c.type==='carro';}).length, nm = S.cars.length-nc;
+  var f = UI.filter;
+  document.getElementById('filters').innerHTML =
+    '<button type="button" data-filter="todos" aria-pressed="'+(f==='todos')+'">Todos · '+S.cars.length+'</button>'+
+    '<button type="button" data-filter="carro" aria-pressed="'+(f==='carro')+'">'+ICON.carro+' Carros · '+nc+'</button>'+
+    '<button type="button" data-filter="moto" aria-pressed="'+(f==='moto')+'">'+ICON.moto+' Motos · '+nm+'</button>';
 }
 
 function render(){
-  document.getElementById('grid').innerHTML = S.cars.length
-    ? S.cars.map(cardHTML).join('')
-    : `<p class="idle-hint">No hay carros. Ábrelos en “Carros y tiempos” y agrega el primero.</p>`;
-  renderStats(); tick(true);
+  var list = S.cars.filter(function(c){ return UI.filter==='todos' || c.type===UI.filter; });
+  document.getElementById('grid').innerHTML = list.length
+    ? list.map(cardHTML).join('')
+    : '<p class="idle-hint">No hay vehículos aquí. Agrégalos en “Vehículos y tiempos”.</p>';
+  renderFilters(); renderStats(); tick(true);
   if (!document.getElementById('settings').hidden) renderSettings();
+  if (UI.tab==='stats') renderStatsView();
 }
 
+/* ---------- Pestañas ---------- */
+function setTab(tab){
+  UI.tab = tab;
+  document.getElementById('pistaView').hidden = tab!=='pista';
+  document.getElementById('statsView').hidden = tab!=='stats';
+  document.getElementById('tab-pista').setAttribute('aria-selected', String(tab==='pista'));
+  document.getElementById('tab-stats').setAttribute('aria-selected', String(tab==='stats'));
+  if (tab==='stats') renderStatsView();
+  try { localStorage.setItem('pista-tab', tab); } catch(e){}
+}
+document.getElementById('tabs').addEventListener('click', function(e){
+  var b = e.target.closest('[data-tab]'); if (b) setTab(b.dataset.tab);
+});
+
+/* ---------- Estadísticas ---------- */
+var DAY = 86400000;
+var WEEKDAYS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+var WD_SHORT = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+var PERIODS = [['hoy','Hoy'],['7','7 días'],['30','30 días'],['todo','Todo']];
+function startOfDay(ts){ var d=new Date(ts); d.setHours(0,0,0,0); return d.getTime(); }
+function daysBack(n){ var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-n); return d.getTime(); }
+function periodStart(p){ if (p==='hoy') return daysBack(0); if (p==='7') return daysBack(6); if (p==='30') return daysBack(29); return 0; }
+function hourLabel(h){ var s=h%12||12; return s+(h<12?' a.m.':' p.m.'); }
+function hourShort(h){ var s=h%12||12; return s+(h<12?'a':'p'); }
+function shortMoney(n){ if (n>=1e6) return '$'+(Math.round(n/1e5)/10)+'M'; if (n>=1000) return '$'+Math.round(n/1000)+'k'; return '$'+Math.round(n); }
+function sum(arr, f){ var s=0; arr.forEach(function(x){ s+=f(x); }); return s; }
+function recaudoOf(l){ return debtOf(l) ? 0 : (l.price||0); }
+
+function colChart(items, fmtVal, labelEvery){
+  var max = 0; items.forEach(function(i){ if (i.value>max) max=i.value; });
+  var showAll = items.length<=14;
+  return '<div class="cols-wrap"><div class="cols">'+items.map(function(it, idx){
+    var pct = max ? (it.value/max*100) : 0;
+    var isTop = max>0 && it.value===max;
+    var label = (!labelEvery || idx%labelEvery===0 || idx===items.length-1) ? it.label : '';
+    var cv = it.value && (showAll || isTop) ? fmtVal(it.value) : '';
+    return '<div class="col'+(isTop?' top':'')+'" title="'+esc(it.tip+': '+fmtVal(it.value))+'"><span class="cv">'+cv+'</span>'+
+      '<div class="track"><i style="height:'+pct.toFixed(1)+'%"></i></div><span class="cl">'+label+'</span></div>';
+  }).join('')+'</div></div>';
+}
+function hbars(rows){
+  var max = 0; rows.forEach(function(r){ if (r.value>max) max=r.value; });
+  return '<div class="hbars">'+rows.map(function(r){
+    return '<div class="hbar"><div class="hl">'+(r.dot?'<span class="dot" style="background:'+esc(r.dot)+'"></span>':'')+(r.icon||'')+'<span style="overflow:hidden;text-overflow:ellipsis">'+esc(r.label)+'</span></div>'+
+      '<div class="ht"><i style="width:'+(max?(r.value/max*100).toFixed(1):0)+'%"></i></div><div class="hv">'+r.text+'</div></div>';
+  }).join('')+'</div>';
+}
+
+function renderStatsView(){
+  var p = UI.period, from = periodStart(p), now = Date.now();
+  var L = S.log.filter(function(l){ return l.ts>=from; });
+  var turnos = L.length;
+  var recaudo = sum(L, recaudoOf);
+  var vendido = sum(L, function(l){ return l.price||0; });
+  var minutos = sum(L, function(l){ return l.min||0; });
+  var ticket = turnos ? vendido/turnos : 0;
+  var owedAll = sum(S.log, debtOf);
+  var depAll = sum(S.log.filter(function(l){ return debtOf(l)>0; }), function(l){ return l.paid||0; });
+  var dayCount = p==='hoy' ? 1 : p==='7' ? 7 : p==='30' ? 30 : (L.length ? Math.max(1, Math.round((startOfDay(now)-startOfDay(L[L.length-1].ts))/DAY)+1) : 1);
+
+  var html = '<div class="periods" id="periods">'+PERIODS.map(function(x){
+    return '<button type="button" data-period="'+x[0]+'" aria-pressed="'+(p===x[0])+'">'+x[1]+'</button>'; }).join('')+'</div>';
+
+  html += '<div class="kpis">'+
+    '<div class="kpi hl"><span>Recaudo</span><b>'+money(recaudo)+'</b><small>Pagos completos</small></div>'+
+    '<div class="kpi"><span>Turnos</span><b>'+turnos+'</b><small>'+(p==='hoy'?'Hoy':(turnos/dayCount).toFixed(1).replace('.',',')+' por día')+'</small></div>'+
+    '<div class="kpi"><span>Ticket promedio</span><b>'+money(ticket)+'</b><small>Por turno</small></div>'+
+    '<div class="kpi"><span>Tiempo en pista</span><b>'+(minutos>=60?Math.floor(minutos/60)+' h '+(minutos%60)+' min':minutos+' min')+'</b><small>Minutos vendidos</small></div>'+
+    '<div class="kpi'+(owedAll?' owed':'')+'"><span>Por cobrar</span><b>'+money(owedAll)+'</b><small>Abonos recibidos: '+money(depAll)+'</small></div>'+
+    '<div class="kpi"><span>Vendido</span><b>'+money(vendido)+'</b><small>Incluye saldos pendientes</small></div>'+
+  '</div>';
+
+  if (!turnos){
+    html += '<div class="empty-stats"><b>Aún no hay turnos en este periodo</b>Cuando arranques sesiones en la pestaña Pista, aquí verás las horas más movidas, los días que más venden y qué vehículos se usan más.</div>';
+    document.getElementById('statsView').innerHTML = html; return;
+  }
+
+  /* Agrupaciones */
+  var byHourCount = {}, byHourMoney = {}, byWd = [0,0,0,0,0,0,0], byWdMoney = [0,0,0,0,0,0,0], byVeh = {}, byMin = {}, byType = {carro:{n:0,m:0},moto:{n:0,m:0}};
+  L.forEach(function(l){
+    var d = new Date(l.ts), h = d.getHours();
+    byHourCount[h] = (byHourCount[h]||0)+1; byHourMoney[h] = (byHourMoney[h]||0)+recaudoOf(l);
+    byWd[d.getDay()]++; byWdMoney[d.getDay()] += recaudoOf(l);
+    var key = l.vid || l.car;
+    var car = findCar(l.vid);
+    if (!byVeh[key]) byVeh[key] = {name: car?car.name:l.car, type: car?car.type:(l.type||'carro'), color: car?car.color:'#999', n:0, m:0, min:0, num: car?numberOf(car):''};
+    byVeh[key].n++; byVeh[key].m += recaudoOf(l); byVeh[key].min += l.min||0;
+    byMin[l.min] = (byMin[l.min]||0)+1;
+    var t = l.type==='moto'?'moto':'carro'; byType[t].n++; byType[t].m += recaudoOf(l);
+  });
+  S.cars.forEach(function(c){ if (!byVeh[c.id]) byVeh[c.id] = {name:c.name, type:c.type, color:c.color, n:0, m:0, min:0, num:numberOf(c)}; });
+  var vehs = Object.keys(byVeh).map(function(k){ return byVeh[k]; }).sort(function(a,b){ return b.n-a.n || b.m-a.m; });
+
+  var hours = Object.keys(byHourCount).map(Number);
+  var minH = Math.min.apply(null, hours.concat([9])), maxH = Math.max.apply(null, hours.concat([18]));
+  var peakH = hours.sort(function(a,b){ return byHourCount[b]-byHourCount[a]; })[0];
+  var bestWd = -1; if (p!=='hoy'){ for (var w=0; w<7; w++) if (byWd[w] && (bestWd<0 || byWdMoney[w]>byWdMoney[bestWd] || (byWdMoney[w]===byWdMoney[bestWd] && byWd[w]>byWd[bestWd]))) bestWd = w; }
+  var topVeh = vehs[0], lowVeh = vehs[vehs.length-1];
+  var topMin = Object.keys(byMin).sort(function(a,b){ return byMin[b]-byMin[a]; })[0];
+
+  html += '<div class="insights">'+
+    '<div class="insight"><span>Hora pico</span><b>'+hourLabel(peakH)+'</b><small>'+byHourCount[peakH]+' turnos arrancaron a esa hora</small></div>'+
+    (bestWd>=0 ? '<div class="insight"><span>Mejor día</span><b>'+WEEKDAYS[bestWd]+'</b><small>'+money(byWdMoney[bestWd])+' en '+byWd[bestWd]+' turnos</small></div>' : '')+
+    '<div class="insight"><span>Más usado</span><b>'+ICON[topVeh.type]+esc(topVeh.name)+'</b><small>'+topVeh.n+' turnos · '+money(topVeh.m)+'</small></div>'+
+    (vehs.length>1 ? '<div class="insight"><span>Menos usado</span><b>'+ICON[lowVeh.type]+esc(lowVeh.name)+'</b><small>'+(lowVeh.n?lowVeh.n+' turnos':'Sin turnos en este periodo')+'</small></div>' : '')+
+    '<div class="insight"><span>Sesión favorita</span><b>'+topMin+' min</b><small>'+Math.round(byMin[topMin]/turnos*100)+'% de los turnos</small></div>'+
+  '</div>';
+
+  /* Serie de recaudo en el tiempo */
+  var series = [], every = 0, seriesTitle, seriesHint;
+  if (p==='hoy'){
+    for (var h=minH; h<=maxH; h++) series.push({label:hourShort(h), tip:hourLabel(h), value:byHourMoney[h]||0});
+    seriesTitle = 'Recaudo por hora'; seriesHint = 'Pagos completos de hoy, según la hora en que arrancó cada turno.';
+  } else {
+    var start = from || startOfDay(L[L.length-1].ts);
+    if (p==='todo' && (startOfDay(now)-start)/DAY > 59) start = daysBack(59);
+    var byDay = {};
+    L.forEach(function(l){ var k=startOfDay(l.ts); byDay[k]=(byDay[k]||0)+recaudoOf(l); });
+    var d0 = new Date(start); d0.setHours(0,0,0,0);
+    while (d0.getTime() <= now){
+      var k = d0.getTime();
+      series.push({label:(series.length>14 ? String(d0.getDate()) : WD_SHORT[d0.getDay()]+' '+d0.getDate()), tip:d0.toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'short'}), value:byDay[k]||0});
+      d0.setDate(d0.getDate()+1);
+    }
+    every = series.length>14 ? 5 : 0;
+    seriesTitle = 'Recaudo por día'; seriesHint = p==='todo' && series.length>=60 ? 'Últimos 60 días. Solo pagos completos.' : 'Solo pagos completos.';
+  }
+
+  var hourItems = [];
+  for (var hh=minH; hh<=maxH; hh++) hourItems.push({label:hourShort(hh), tip:hourLabel(hh), value:byHourCount[hh]||0});
+
+  var tot = byType.carro.n + byType.moto.n, pc = tot ? Math.round(byType.carro.n/tot*100) : 0;
+
+  html += '<div class="charts">'+
+    '<div class="chart-card wide"><h3>'+seriesTitle+'</h3><p class="hint">'+seriesHint+'</p>'+colChart(series, shortMoney, every)+'</div>'+
+    '<div class="chart-card"><h3>Horas más movidas</h3><p class="hint">Turnos según la hora de arranque. Úsalo para saber cuándo tener todo listo.</p>'+colChart(hourItems, String, 0)+'</div>'+
+    (p!=='hoy' ? '<div class="chart-card"><h3>Turnos por día de la semana</h3><p class="hint">Total del periodo.</p>'+
+      colChart([1,2,3,4,5,6,0].map(function(w){ return {label:WD_SHORT[w], tip:WEEKDAYS[w], value:byWd[w]}; }), String, 0)+'</div>' : '')+
+    '<div class="chart-card"><h3>Uso por vehículo</h3><p class="hint">Ordenado por número de turnos. Recaudo solo de pagos completos.</p>'+
+      hbars(vehs.map(function(v){ return {label:v.name, dot:v.color, icon:ICON[v.type], value:v.n, text:v.n+' turnos · '+money(v.m)+' · '+v.min+' min'}; }))+'</div>'+
+    '<div class="chart-card"><h3>Carros vs motos</h3><p class="hint">Participación en turnos del periodo.</p>'+
+      '<div class="split">'+(byType.carro.n?'<div class="s-car" style="width:'+pc+'%">'+ICON.carro+' '+pc+'%</div>':'')+(byType.moto.n?'<div class="s-moto" style="width:'+(100-pc)+'%">'+ICON.moto+' '+(100-pc)+'%</div>':'')+'</div>'+
+      '<div class="split-legend"><span>'+ICON.carro+' Carros: '+byType.carro.n+' turnos · '+money(byType.carro.m)+'</span><span>'+ICON.moto+' Motos: '+byType.moto.n+' turnos · '+money(byType.moto.m)+'</span></div>'+
+      '<h3 style="margin-top:8px">Tiempos más vendidos</h3>'+
+      hbars(Object.keys(byMin).sort(function(a,b){ return byMin[b]-byMin[a]; }).map(function(m){ return {label:m+' min', value:byMin[m], text:byMin[m]+' turnos · '+Math.round(byMin[m]/turnos*100)+'%'}; }))+
+    '</div>'+
+  '</div>';
+
+  document.getElementById('statsView').innerHTML = html;
+}
+document.getElementById('statsView').addEventListener('click', function(e){
+  var b = e.target.closest('[data-period]'); if (!b) return; UI.period = b.dataset.period; renderStatsView();
+});
+
 function renderStats(){
-  const today = dayKey(Date.now());
-  const todays = S.log.filter(l=>dayKey(l.ts)===today);
-  document.getElementById('sOn').textContent = Object.values(S.timers).filter(t=>t.status!=='done').length;
+  var today = dayKey(Date.now());
+  var todays = S.log.filter(function(l){ return dayKey(l.ts)===today; });
+  var on = 0; for (var k in S.timers) if (S.timers[k].status!=='done') on++;
+  var money_ = 0; todays.forEach(function(l){ if (!debtOf(l)) money_ += l.price; });
+  var owed = 0, deposits = 0;
+  S.log.forEach(function(l){ var d=debtOf(l); if (d){ owed += d; deposits += l.paid; } });
+  var doneN = 0; for (var kk in S.timers) if (S.timers[kk].status==='done') doneN++;
+  var ta = document.getElementById('tabAlert'); ta.hidden = !doneN; ta.textContent = doneN;
+  document.getElementById('sOn').textContent = on;
   document.getElementById('sCount').textContent = todays.length;
-  document.getElementById('sMoney').textContent = COP.format(todays.reduce((a,l)=>a+l.price,0));
+  document.getElementById('sMoney').textContent = money(money_);
+  document.getElementById('sOwed').textContent = money(owed);
+  document.getElementById('sDeposits').textContent = 'Abonos: '+money(deposits);
+  document.getElementById('sOwedBox').classList.toggle('owed', owed>0);
   document.getElementById('today').textContent = new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'});
 }
 
 function tick(fromRender){
-  const now = Date.now(); let changed = false;
-  for (const car of S.cars){
-    const t = S.timers[car.id]; if(!t) continue;
-    const el = document.querySelector(`.car[data-id="${car.id}"]`);
+  var now = Date.now(), changed = false;
+  S.cars.forEach(function(car){
+    var t = S.timers[car.id]; if(!t) return;
+    var el = document.querySelector('.car[data-id="'+car.id+'"]');
     if (t.status==='running'){
-      const rem = t.endAt-now;
-      if (rem<=0){ t.status='done'; t.doneAt=t.endAt; t.lastAlarm=now; doneSound(); changed=true; continue; }
+      var rem = t.endAt-now;
+      if (rem<=0){ t.status='done'; t.doneAt=t.endAt; t.lastAlarm=now; doneSound(); changed=true; return; }
       if (rem<=60000 && !t.warned){ t.warned=true; warnSound(); save(); }
       if (el){
         el.classList.toggle('warn', rem<=60000);
         el.querySelector('[data-time]').textContent = fmt(rem);
-        el.querySelector('[data-meta]').innerHTML = `Sesión ${Math.round(t.total/60000)} min<br>Sale ${hhmm(t.endAt)}`;
+        el.querySelector('[data-meta]').innerHTML = 'Sesión '+Math.round(t.total/60000)+' min<br>Sale '+hhmm(t.endAt);
         el.querySelector('[data-bar]').style.width = (rem/t.total*100).toFixed(1)+'%';
       }
     } else if (t.status==='paused'){
       if (el){
         el.querySelector('[data-time]').textContent = fmt(t.remaining);
-        el.querySelector('[data-meta]').innerHTML = `Sesión ${Math.round(t.total/60000)} min<br>En pausa`;
+        el.querySelector('[data-meta]').innerHTML = 'Sesión '+Math.round(t.total/60000)+' min<br>En pausa';
         el.querySelector('[data-bar]').style.width = (t.remaining/t.total*100).toFixed(1)+'%';
       }
     } else if (t.status==='done'){
       if (now - (t.lastAlarm||0) > 15000){ t.lastAlarm=now; doneSound(); }
       if (el){
         el.querySelector('[data-time]').textContent = '+'+fmtUp(now-t.doneAt);
-        el.querySelector('[data-meta]').innerHTML = `Tiempo extra<br>Terminó ${hhmm(t.doneAt)}`;
+        el.querySelector('[data-meta]').innerHTML = 'Tiempo extra<br>Terminó '+hhmm(t.doneAt);
         el.querySelector('[data-bar]').style.width = '100%';
       }
     }
-  }
+  });
   if (changed){ save(); if(!fromRender) render(); }
 }
-setInterval(()=>tick(false), 250);
+setInterval(function(){ tick(false); }, 250);
 
 /* ---------- Eventos tarjetas ---------- */
-document.addEventListener('pointerdown', unlockAudio, {passive:true});
-document.getElementById('grid').addEventListener('click', e=>{
-  const b = e.target.closest('button[data-act]'); if(!b) return;
-  const id = b.closest('.car').dataset.id;
-  ({start:()=>startCar(id,b.dataset.preset), pause:()=>pauseCar(id), resume:()=>resumeCar(id), add:()=>addMin(id), stop:()=>stopCar(id)})[b.dataset.act]();
+document.getElementById('grid').addEventListener('click', function(e){
+  var b = e.target.closest('button[data-act]'); if(!b) return;
+  var card = b.closest('.car'); var id = card ? card.dataset.id : null;
+  var a = b.dataset.act;
+  if (a!=='settle') UI.confirmSettle = null;
+  if (a==='pick') choosePreset(id, b.dataset.preset);
+  else if (a==='mode') setMode(b.dataset.mode);
+  else if (a==='cancel') cancelPending();
+  else if (a==='go') startCar(id);
+  else if (a==='pause') pauseCar(id);
+  else if (a==='resume') resumeCar(id);
+  else if (a==='add') addMin(id);
+  else if (a==='stop') stopCar(id);
+  else if (a==='settle') settle(b.dataset.log);
+});
+document.getElementById('grid').addEventListener('input', function(e){
+  if (!e.target.hasAttribute('data-other') || !UI.pending) return;
+  UI.pending.other = e.target.value;
+  var p = findPreset(UI.pending.presetId); if (!p) return;
+  var debt = (Number(p.price)||0) - pendingAmount(p);
+  var note = e.target.closest('.confirm').querySelector('[data-note]');
+  note.hidden = !(debt>0); note.textContent = 'Queda debiendo '+money(debt);
+});
+document.getElementById('filters').addEventListener('click', function(e){
+  var b = e.target.closest('[data-filter]'); if(!b) return; UI.filter = b.dataset.filter; render();
 });
 
 /* ---------- Ajustes ---------- */
-const tgl = document.getElementById('toggleSettings');
-tgl.addEventListener('click',()=>{
-  const p = document.getElementById('settings'); p.hidden = !p.hidden;
-  tgl.setAttribute('aria-expanded', String(!p.hidden)); if(!p.hidden) renderSettings();
+var panel = document.getElementById('settings'), tgl = document.getElementById('toggleSettings');
+function openPanel(show){
+  panel.hidden = !show; tgl.setAttribute('aria-expanded', String(show)); if (show) renderSettings();
+}
+tgl.addEventListener('click', function(){ openPanel(panel.hidden); });
+document.getElementById('sOwedBox').addEventListener('click', function(){
+  openPanel(true); var lb=document.getElementById('logBox'); if (lb.scrollIntoView) lb.scrollIntoView({behavior:'smooth',block:'start'});
 });
+document.getElementById('addCar').innerHTML = '+ '+ICON.carro+' Carro';
+document.getElementById('addMoto').innerHTML = '+ '+ICON.moto+' Moto';
 
 function renderSettings(){
-  const a = document.activeElement, keep = a && a.id;
-  document.getElementById('carRows').innerHTML = S.cars.map((c,i)=>`
-    <div class="row" data-car="${c.id}">
-      <input type="color" id="cc-${c.id}" value="${esc(c.color)}" aria-label="Color del carro ${i+1}" data-f="color">
-      <input class="grow" id="cn-${c.id}" value="${esc(c.name)}" aria-label="Nombre del carro ${i+1}" data-f="name">
-      <button class="del" data-del="car" aria-label="Quitar ${esc(c.name)}" ${S.timers[c.id]?'disabled title="Está en pista"':''}>✕</button>
-    </div>`).join('');
-  document.getElementById('presetRows').innerHTML = S.presets.map(p=>`
-    <div class="row" data-preset="${p.id}">
-      <input class="num" type="number" min="1" max="120" id="pm-${p.id}" value="${p.min}" aria-label="Minutos" data-f="min"><label>min</label>
-      <input class="price" type="number" min="0" step="500" id="pp-${p.id}" value="${p.price}" aria-label="Precio" data-f="price"><label>COP</label>
-      <span class="grow"></span>
-      <button class="del" data-del="preset" aria-label="Quitar ${p.min} minutos">✕</button>
-    </div>`).join('');
-  const today = dayKey(Date.now());
-  const todays = S.log.filter(l=>dayKey(l.ts)===today);
-  document.getElementById('logList').innerHTML = todays.length
-    ? todays.map(l=>`<div><span>${hhmm(l.ts)} · ${esc(l.car)}</span><span>${l.min} min · ${COP.format(l.price)}</span></div>`).join('')
-    : `<div><span>Aún no hay turnos hoy.</span></div>`;
-  if (keep){ const el=document.getElementById(keep); if(el) el.focus(); }
+  var a = document.activeElement, keep = a && a.id;
+  document.getElementById('carRows').innerHTML = S.cars.map(function(c){
+    var busy = !!S.timers[c.id];
+    return '<div class="row" data-car="'+c.id+'">'+
+      '<button type="button" class="kind-btn" data-kind aria-label="Cambiar tipo, ahora es '+KIND_LABEL[c.type]+'">'+ICON[c.type]+'</button>'+
+      '<input type="color" id="cc-'+c.id+'" value="'+esc(c.color)+'" aria-label="Color" data-f="color">'+
+      '<input class="grow" id="cn-'+c.id+'" value="'+esc(c.name)+'" aria-label="Nombre" data-f="name">'+
+      '<button type="button" class="del" data-del="car" aria-label="Quitar '+esc(c.name)+'"'+(busy?' disabled title="Está en pista"':'')+'>✕</button>'+
+    '</div>';
+  }).join('');
+  document.getElementById('presetRows').innerHTML = S.presets.map(function(p){
+    return '<div class="row" data-preset="'+p.id+'">'+
+      '<input class="num" type="number" inputmode="numeric" min="1" max="120" id="pm-'+p.id+'" value="'+p.min+'" aria-label="Minutos" data-f="min"><label>min</label>'+
+      '<input class="price" type="number" inputmode="numeric" min="0" step="500" id="pp-'+p.id+'" value="'+p.price+'" aria-label="Precio" data-f="price"><label>COP</label>'+
+      '<span class="grow"></span>'+
+      '<button type="button" class="del" data-del="preset" aria-label="Quitar '+p.min+' minutos">✕</button>'+
+    '</div>';
+  }).join('');
+  var today = dayKey(Date.now());
+  var rows = S.log.filter(function(l){ return dayKey(l.ts)===today || debtOf(l)>0; });
+  document.getElementById('logList').innerHTML = rows.length ? rows.map(function(l){
+    var d = debtOf(l), sure = UI.confirmSettle===l.id;
+    var past = dayKey(l.ts)!==today ? new Date(l.ts).toLocaleDateString('es-CO',{day:'numeric',month:'short'})+' ' : '';
+    return '<div class="log-item"><span class="who">'+(ICON[l.type]||'')+' '+past+hhmm(l.ts)+' · '+esc(l.car)+' · '+l.min+' min</span>'+
+      '<span class="amt">'+(d
+        ? '<span class="tag-debt">Abonó '+money(l.paid)+' · debe '+money(d)+'</span><button type="button" data-settle="'+l.id+'" class="'+(sure?'sure':'')+'">'+(sure?'¿Recibido? Sí':'Cobrar')+'</button>'
+        : '<span class="tag-ok">'+money(l.price)+' ✓</span>')+'</span></div>';
+  }).join('') : '<div class="log-item"><span>Aún no hay turnos hoy.</span></div>';
+  if (keep){ var el=document.getElementById(keep); if(el && el.focus) el.focus(); }
 }
 
-document.getElementById('settings').addEventListener('change', e=>{
-  const inp = e.target, f = inp.dataset.f; if(!f) return;
-  const cr = inp.closest('[data-car]'), pr = inp.closest('[data-preset]');
-  if (cr){ const c=S.cars.find(x=>x.id===cr.dataset.car); c[f]=inp.value || c[f]; }
-  if (pr){ const p=S.presets.find(x=>x.id===pr.dataset.preset); const v=Number(inp.value);
-    if (f==='min' && v>0) p.min=v; if (f==='price' && v>=0) p.price=v;
-    S.presets.sort((a,b)=>a.min-b.min); }
+panel.addEventListener('change', function(e){
+  var inp = e.target, f = inp.dataset.f; if(!f) return;
+  var cr = inp.closest('[data-car]'), pr = inp.closest('[data-preset]');
+  if (cr){ var c=findCar(cr.dataset.car); if (c) c[f] = inp.value || c[f]; }
+  if (pr){ var p=findPreset(pr.dataset.preset), v=Number(inp.value);
+    if (p){ if (f==='min' && v>0) p.min=v; if (f==='price' && v>=0) p.price=v; }
+    S.presets.sort(function(a,b){ return a.min-b.min; }); }
   save(); render();
 });
-document.getElementById('settings').addEventListener('click', e=>{
-  const d = e.target.closest('[data-del]'); if(!d) return;
-  if (d.dataset.del==='car'){ const id=d.closest('[data-car]').dataset.car; S.cars=S.cars.filter(c=>c.id!==id); }
-  else { if (S.presets.length<=1) return; const id=d.closest('[data-preset]').dataset.preset; S.presets=S.presets.filter(p=>p.id!==id); }
+panel.addEventListener('click', function(e){
+  var k = e.target.closest('[data-kind]');
+  if (k){ var c=findCar(k.closest('[data-car]').dataset.car); if (c){ c.type = c.type==='moto'?'carro':'moto'; save(); render(); } return; }
+  var s = e.target.closest('[data-settle]');
+  if (s){ settle(s.dataset.settle); return; }
+  var d = e.target.closest('[data-del]'); if(!d) return;
+  if (d.dataset.del==='car'){ var id=d.closest('[data-car]').dataset.car; S.cars=S.cars.filter(function(c){ return c.id!==id; }); }
+  else { if (S.presets.length<=1) return; var pid=d.closest('[data-preset]').dataset.preset; S.presets=S.presets.filter(function(p){ return p.id!==pid; }); }
   save(); render();
 });
-document.getElementById('addCar').addEventListener('click',()=>{
-  const n=S.cars.length; S.cars.push({id:uid(), name:NAMES[n%NAMES.length], color:COLORS[n%COLORS.length]}); save(); render();
-});
-document.getElementById('addPreset').addEventListener('click',()=>{
-  const last = S.presets[S.presets.length-1]; S.presets.push({id:uid(), min:(last?last.min:5)+5, price:last?last.price:5000}); save(); render();
+function addVehicle(type){
+  var n=S.cars.length; S.cars.push({id:uid(), name:NAMES[n%NAMES.length], color:COLORS[n%COLORS.length], type:type}); save(); render();
+}
+document.getElementById('addCar').addEventListener('click', function(){ addVehicle('carro'); });
+document.getElementById('addMoto').addEventListener('click', function(){ addVehicle('moto'); });
+document.getElementById('addPreset').addEventListener('click', function(){
+  var last = S.presets[S.presets.length-1]; S.presets.push({id:uid(), min:(last?last.min:5)+5, price:last?last.price:5000}); save(); render();
 });
 
 render();
+try { if (localStorage.getItem('pista-tab')==='stats') setTab('stats'); } catch(e){}
+})();
 </script>
 
 </body></html>
