@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#000;color:#f5f5f5}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Pista de Carritos</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,20 +11,20 @@
 <style>
 /* Layout: control de pista — resumen arriba, cuadrícula de vehículos con semáforo de estado y estado de pago */
 :root{
-  --bg:#f3f5ef; --surface:#ffffff; --surface-2:#e9ede3; --fg:#1d2419; --muted:#5f6b58; --line:#d5dccd;
-  --accent:#f2b705; --accent-ink:#2b2100;
+  --bg:#000000; --surface:#111111; --surface-2:#1b1b1b; --fg:#f5f5f5; --muted:#a3a3a3; --line:#303030;
+  --accent:#f2b705; --accent-ink:#1a1500;
   --go:#1f9d55; --go-soft:#dcf3e5; --warn:#c77700; --warn-soft:#fdeccd; --stop:#d7263d; --stop-soft:#fbdde1; --stop-glow:rgba(215,38,61,.28);
   --display:"Baloo 2", "Trebuchet MS", system-ui, sans-serif;
   --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#141812; --surface:#1d231a; --surface-2:#262e22; --fg:#eef2ea; --muted:#9aa892; --line:#333d2e;
-  --accent:#f5c63a; --accent-ink:#2b2100;
-  --go:#3ccf7a; --go-soft:#173726; --warn:#f2a531; --warn-soft:#3b2b10; --stop:#ff5468; --stop-soft:#43161d; --stop-glow:rgba(255,84,104,.3); color-scheme:dark }}
+  --bg:#000000; --surface:#111111; --surface-2:#1b1b1b; --fg:#f5f5f5; --muted:#a3a3a3; --line:#303030;
+  --accent:#f5c63a; --accent-ink:#1a1500;
+  --go:#3ccf7a; --go-soft:#14291d; --warn:#f2a531; --warn-soft:#30230f; --stop:#ff5468; --stop-soft:#32151a; --stop-glow:rgba(255,84,104,.3); color-scheme:dark }}
 :root[data-theme="dark"]{
-  --bg:#141812; --surface:#1d231a; --surface-2:#262e22; --fg:#eef2ea; --muted:#9aa892; --line:#333d2e;
-  --accent:#f5c63a; --accent-ink:#2b2100;
-  --go:#3ccf7a; --go-soft:#173726; --warn:#f2a531; --warn-soft:#3b2b10; --stop:#ff5468; --stop-soft:#43161d; --stop-glow:rgba(255,84,104,.3); color-scheme:dark }
+  --bg:#000000; --surface:#111111; --surface-2:#1b1b1b; --fg:#f5f5f5; --muted:#a3a3a3; --line:#303030;
+  --accent:#f5c63a; --accent-ink:#1a1500;
+  --go:#3ccf7a; --go-soft:#14291d; --warn:#f2a531; --warn-soft:#30230f; --stop:#ff5468; --stop-soft:#32151a; --stop-glow:rgba(255,84,104,.3); color-scheme:dark }
 
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -46,6 +46,9 @@ header{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;justify-cont
 .flag{width:40px;height:40px;border-radius:9px;flex:none;
   background:conic-gradient(var(--fg) 25%, var(--surface) 0 50%, var(--fg) 0 75%, var(--surface) 0) 0 0/20px 20px;border:2px solid var(--fg)}
 h1{font-family:var(--display);font-weight:800;font-size:1.9rem;line-height:1;margin:0;text-wrap:balance}
+.brand-title-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.edit-title{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:7px;padding:4px 7px;font-size:.75rem;cursor:pointer}
+.edit-title:hover{color:var(--fg);border-color:#777}
 .sub{color:var(--muted);font-size:.85rem;margin-top:2px}
 .stats{display:flex;flex-wrap:wrap;gap:8px}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 14px;display:flex;flex-direction:column;align-items:flex-start;min-width:96px;text-align:left}
@@ -149,6 +152,15 @@ button.stat:hover{filter:brightness(.97)}
 .add{background:var(--surface-2);padding:10px 14px;font-weight:600;display:flex;align-items:center;gap:6px}
 .add:hover,.del:hover,.kind-btn:hover{filter:brightness(.95)}
 .log{grid-column:1/-1}
+.alert-settings{grid-column:1/-1;border-top:1px solid var(--line);padding-top:18px}
+.alert-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.setting-field{display:flex;flex-direction:column;gap:7px;font-size:.82rem;color:var(--muted);font-weight:600}
+.setting-field strong{color:var(--fg);font-size:.82rem}
+.setting-field select{width:100%;font:inherit;font-size:16px;color:var(--fg);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px}
+.setting-field input[type=range]{width:100%;accent-color:var(--accent);padding:0}
+.alert-checks{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
+.alert-checks label{display:flex;align-items:center;gap:8px;font-size:.85rem}
+.alert-checks input{accent-color:var(--accent);width:18px;height:18px}
 .log-list{max-height:280px;overflow:auto;font-size:.85rem;border-top:1px solid var(--line);-webkit-overflow-scrolling:touch}
 .log-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;flex-wrap:wrap}
 .log-item .who{display:flex;align-items:center;gap:6px;min-width:0}
@@ -325,7 +337,7 @@ button.stat:hover{filter:brightness(.97)}
     <div class="brand">
       <div class="flag" aria-hidden="true"></div>
       <div>
-        <h1>Pista de Carritos</h1>
+        <div class="brand-title-row"><h1 id="projectName">Pista de Carritos</h1><button class="edit-title" id="editProjectName" type="button" title="Cambiar nombre del proyecto" aria-label="Cambiar nombre del proyecto">✎ Editar nombre</button></div>
         <div class="sub" id="today"></div>
       </div>
     </div>
@@ -363,6 +375,47 @@ button.stat:hover{filter:brightness(.97)}
       <p>Cada tiempo aparece como botón en los vehículos libres. Los precios son de ejemplo, cámbialos por los tuyos.</p>
       <div class="rows" id="presetRows"></div>
       <div class="add-row"><button class="add" id="addPreset" type="button">+ Agregar tiempo</button></div>
+    </div>
+    <div class="alert-settings">
+      <h2>🔔 Notificaciones y alarma</h2>
+      <p>Personaliza el aviso cuando queda poco tiempo y cuando termina una sesión. Los cambios se guardan automáticamente en este navegador.</p>
+      <div class="alert-grid">
+        <label class="setting-field">Sonido de la alarma
+          <select id="alertSound">
+            <option value="alarma">Alarma clásica</option>
+            <option value="sirena">Sirena</option>
+            <option value="campana">Campanas</option>
+            <option value="doble">Pitido doble</option>
+            <option value="urgente">Alerta rápida</option>
+          </select>
+        </label>
+        <label class="setting-field">Duración de cada aviso <strong><span id="alertDurationValue">8</span> segundos</strong>
+          <input id="alertDuration" type="range" min="2" max="20" step="1" value="8">
+        </label>
+        <label class="setting-field">Volumen <strong><span id="alertVolumeValue">75</span>%</strong>
+          <input id="alertVolume" type="range" min="10" max="100" step="5" value="75">
+        </label>
+        <label class="setting-field">Repetir alarma al terminar
+          <select id="alertInterval">
+            <option value="5">Cada 5 segundos</option>
+            <option value="10">Cada 10 segundos</option>
+            <option value="15">Cada 15 segundos</option>
+            <option value="20">Cada 20 segundos</option>
+            <option value="30">Cada 30 segundos</option>
+            <option value="45">Cada 45 segundos</option>
+            <option value="60">Cada minuto</option>
+          </select>
+        </label>
+      </div>
+      <div class="alert-checks">
+        <label><input id="alertWarning" type="checkbox"> Avisar también cuando falte 1 minuto</label>
+        <label><input id="alertVibration" type="checkbox"> Vibrar cuando el dispositivo lo permita</label>
+      </div>
+      <div class="add-row">
+        <button class="add" id="testAlert" type="button">▶ Probar sonido</button>
+        <button class="add" id="stopAlert" type="button">■ Detener prueba</button>
+      </div>
+      <p class="sound-note">Nota: el navegador debe estar abierto y el sonido activado. En iPhone, el modo silencio o las restricciones del navegador pueden impedir que se escuche la alarma.</p>
     </div>
     <div class="log" id="logBox">
       <h2>Turnos y saldos</h2>
@@ -423,7 +476,8 @@ function defaults(){
   return {
     cars: v,
     presets: [{id:uid(),min:5,price:5000},{id:uid(),min:8,price:7000},{id:uid(),min:10,price:9000},{id:uid(),min:15,price:12000}],
-    timers: {}, log: [], shifts: [], shiftId: null
+    timers: {}, log: [], shifts: [], shiftId: null,
+    alertSettings: {sound:"alarma", duration:8, interval:15, volume:75, warning:true, vibration:true}
   };
 }
 
@@ -435,6 +489,9 @@ if (!S.log) S.log = [];
 if (!S.shifts) S.shifts = [];
 if (!S.shiftId) S.shiftId = null;
 if (!S.presets || !S.presets.length) S.presets = defaults().presets;
+if (!S.alertSettings) S.alertSettings = {sound:'alarma', duration:8, interval:15, volume:75, warning:true, vibration:true};
+else { var ad = {sound:'alarma', duration:8, interval:15, volume:75, warning:true, vibration:true}; Object.keys(ad).forEach(function(k){ if (typeof S.alertSettings[k] === 'undefined') S.alertSettings[k] = ad[k]; }); }
+if (typeof S.projectName !== 'string' || !S.projectName.trim()) S.projectName = 'Pista de Carritos';
 S.cars.forEach(function(c){ if (c.type!=='moto') c.type='carro'; });
 /* Migración de turnos anteriores: lo pagado al inicio y cuándo quedó pagado completo */
 S.log.forEach(function(l){
@@ -445,6 +502,19 @@ S.log.forEach(function(l){
   if (l.paid>=l.price && !l.paidAt) l.paidAt = l.ts;
 });
 function save(){ try { localStorage.setItem('pista-v1', JSON.stringify(S)); } catch(e){} }
+function updateProjectName(){
+  var name = S.projectName || 'Pista de Carritos';
+  var heading = document.getElementById('projectName');
+  if (heading) heading.textContent = name;
+  document.title = name;
+}
+document.getElementById('editProjectName').addEventListener('click', function(){
+  var next = window.prompt('Escribe el nombre del proyecto:', S.projectName || 'Pista de Carritos');
+  if (next === null) return;
+  next = next.trim();
+  if (!next) { window.alert('El nombre no puede estar vacío.'); return; }
+  S.projectName = next.slice(0, 60); save(); updateProjectName();
+});
 
 /* Estado de pantalla (no se guarda) */
 var UI = { pending:null, confirmSettle:null, confirmVoid:null, filter:'todos', tab:'pista', range:{unit:'dia', anchor:null, from:'', to:'', shiftId:null}, modal:null };
@@ -466,18 +536,57 @@ function unlockAudio(){
   requestWake();
 }
 ['touchend','click','keydown'].forEach(function(ev){ document.addEventListener(ev, unlockAudio, {passive:true}); });
-function beep(freq, dur, delay){
+var alarmTimers = [], activeOscillators = [];
+function stopAlarmTest(){
+  alarmTimers.forEach(function(id){ clearTimeout(id); });
+  alarmTimers = [];
+  activeOscillators.forEach(function(o){ try { o.stop(); } catch(e){} });
+  activeOscillators = [];
+}
+function beep(freq, dur, delay, wave){
   if (!AC) return;
   try {
-    var t = AC.currentTime + (delay||0), o = AC.createOscillator(), g = AC.createGain();
-    o.type='square'; o.frequency.value=freq;
-    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(.25,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
-    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t+dur+.05);
+    var settings = S.alertSettings || {}, t = AC.currentTime + (delay||0);
+    var o = AC.createOscillator(), g = AC.createGain();
+    o.type = wave || (settings.sound==='campana' ? 'sine' : 'square');
+    o.frequency.value = freq;
+    var volume = Math.max(.01, Math.min(1, (Number(settings.volume)||75)/100)) * .25;
+    g.gain.setValueAtTime(.0001,t);
+    g.gain.exponentialRampToValueAtTime(volume,t+.02);
+    g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t+dur+.05); activeOscillators.push(o);
   } catch(e){}
 }
-function buzz(p){ try { if (navigator.vibrate) navigator.vibrate(p); } catch(e){} }
-function warnSound(){ beep(660,.15,0); beep(660,.15,.25); buzz([150,100,150]); }
-function doneSound(){ [0,.3,.6].forEach(function(d){ beep(990,.22,d); }); beep(1320,.5,.95); buzz([300,150,300,150,600]); }
+function buzz(p){
+  try { if (S.alertSettings.vibration && navigator.vibrate) navigator.vibrate(p); } catch(e){}
+}
+function playAlarm(kind, isTest){
+  if (!AC) return;
+  var settings = S.alertSettings || {}, duration = Math.max(2, Math.min(20, Number(settings.duration)||8));
+  var sound = settings.sound || 'alarma', elapsed = 0, step = sound==='urgente' ? .16 : .32;
+  while (elapsed < duration) {
+    if (sound==='sirena') {
+      beep(660,.22,elapsed,'sawtooth'); beep(990,.22,elapsed+.23,'sawtooth');
+      elapsed += .5;
+    } else if (sound==='campana') {
+      beep(880,.42,elapsed,'sine'); beep(1175,.42,elapsed+.45,'sine');
+      elapsed += .95;
+    } else if (sound==='doble') {
+      beep(kind==='done'?880:660,.12,elapsed,'square');
+      beep(kind==='done'?880:660,.12,elapsed+.2,'square'); elapsed += .55;
+    } else if (sound==='urgente') {
+      beep(880,.09,elapsed,'square'); elapsed += step;
+    } else {
+      beep(kind==='done'?990:660,.16,elapsed,'square');
+      beep(kind==='done'?1320:660,.16,elapsed+.22,'square'); elapsed += .55;
+    }
+  }
+  if (kind==='done') buzz([250,120,250,120,400]);
+  else buzz([120,80,120]);
+}
+function warnSound(){ if (S.alertSettings.warning) playAlarm('warn'); }
+function doneSound(){ playAlarm('done'); }
+
 
 /* ---------- Pantalla encendida ---------- */
 var wake = null;
@@ -550,6 +659,43 @@ function openShift(silent){
 function closeShift(){
   var sh = currentShift(); if (!sh) return null;
   sh.end = Date.now(); S.shiftId = null; save(); return sh;
+}
+
+/* Borra exclusivamente la jornada seleccionada y sus turnos asociados.
+   No elimina otras jornadas ni turnos de la misma fecha. */
+function deleteShift(shiftId){
+  var sh = findShift(shiftId);
+  if (!sh) return;
+  var label = longDate(sh.start).replace(/^./,function(c){return c.toUpperCase();});
+  var shiftEnd = sh.end || Date.now();
+  if (!window.confirm('¿Borrar definitivamente esta jornada del '+label+'?\n\nSolo se eliminarán esta jornada y sus turnos asociados. Las demás jornadas, incluso si son del mismo día, se conservarán. Esta acción no se puede deshacer.')) return;
+
+  var removedLogIds = {};
+  S.log = S.log.filter(function(l){
+    /* Preferir el vínculo explícito. Para registros antiguos sin shiftId,
+       usar únicamente el intervalo horario de esta jornada. */
+    var belongsToShift = l.shiftId === shiftId;
+    var legacyBelongsToShift = !l.shiftId && l.ts >= sh.start && l.ts <= shiftEnd;
+    if (belongsToShift || legacyBelongsToShift) removedLogIds[l.id] = true;
+    return !(belongsToShift || legacyBelongsToShift);
+  });
+
+  Object.keys(S.timers).forEach(function(carId){
+    if (removedLogIds[S.timers[carId].logId]) delete S.timers[carId];
+  });
+
+  S.shifts = S.shifts.filter(function(item){ return item.id !== shiftId; });
+  if (S.shiftId === shiftId) S.shiftId = null;
+  if (UI.range.shiftId === shiftId) {
+    UI.range.shiftId = null;
+    UI.range.unit = 'dia';
+    UI.range.anchor = startOfDay(sh.start);
+  }
+  UI.confirmSettle = null;
+  UI.confirmVoid = null;
+  save();
+  render();
+  toast('Jornada eliminada. Las demás jornadas no se modificaron.');
 }
 
 /* ---------- Acciones de la pista ---------- */
@@ -847,7 +993,7 @@ function tick(fromRender){
         el.querySelector('[data-bar]').style.width = (t.remaining/t.total*100).toFixed(1)+'%';
       }
     } else if (t.status==='done'){
-      if (now - (t.lastAlarm||0) > 15000){ t.lastAlarm=now; doneSound(); }
+      if (now - (t.lastAlarm||0) > (Math.max(5, Number(S.alertSettings.interval)||15)*1000)){ t.lastAlarm=now; doneSound(); }
       if (el){
         el.querySelector('[data-time]').textContent = '+'+fmtUp(now-t.doneAt);
         el.querySelector('[data-meta]').innerHTML = 'Tiempo extra<br>Terminó '+hhmm(t.doneAt);
@@ -1017,7 +1163,7 @@ function shiftListHTML(){
       return '<div class="shift-row"><div class="info"><b>'+longDate(sh.start).replace(/^./,function(c){return c.toUpperCase();})+(open?' · abierta':'')+'</b>'+
         '<small>'+hhmm(sh.start)+(open?' – ahora':' – '+hhmm(sh.end))+' · '+st.turnos+' turnos'+(st.porCobrar?' · debe '+money(st.porCobrar):'')+'</small></div>'+
         '<span class="money">'+money(st.recaudo)+'</span>'+
-        '<button type="button" class="btn" data-viewshift="'+sh.id+'">Ver</button><button type="button" class="btn dark" data-pdfshift="'+sh.id+'">PDF</button></div>';
+        '<button type="button" class="btn" data-viewshift="'+sh.id+'">Ver</button><button type="button" class="btn dark" data-pdfshift="'+sh.id+'">PDF</button><button type="button" class="btn danger" data-deleteshift="'+sh.id+'" title="Borrar solo esta jornada">Borrar</button></div>';
     }).join('')+'</div></div>';
 }
 
@@ -1036,9 +1182,12 @@ function renderStatsView(){
   '</div>'+
   (st.voidCount ? '<p class="void-sum">'+st.voidCount+' turno'+(st.voidCount>1?'s':'')+' anulado'+(st.voidCount>1?'s':'')+' en este periodo · '+money(st.refunded)+' devuelto. No cuentan en ninguna cifra.</p>' : '');
 
+  /* Mostrar las jornadas inmediatamente debajo de los indicadores para que
+     el botón Borrar no quede oculto al final de los gráficos. */
+  html += shiftListHTML();
+
   if (!st.turnos && !st.recaudo){
     html += '<div class="empty-stats"><b>No hay turnos en este periodo</b>Elige otro día, semana o mes con los controles de arriba. Cuando arranques turnos en la Pista, aquí verás las horas más movidas, los mejores días y qué vehículos se usan más.</div>';
-    html += shiftListHTML();
     document.getElementById('statsView').innerHTML = html; return;
   }
 
@@ -1081,6 +1230,7 @@ statsView.addEventListener('click', function(e){
   var n = t.closest('[data-nav]'); if (n){ shiftRange(Number(n.dataset.nav)); return; }
   var v = t.closest('[data-viewshift]'); if (v){ UI.range.unit='jornada'; UI.range.shiftId=v.dataset.viewshift; renderStatsView(); window.scrollTo(0,0); return; }
   var p = t.closest('[data-pdfshift]'); if (p){ var sh=findShift(p.dataset.pdfshift); if (sh) exportShiftPdf(sh); return; }
+  var del = t.closest('[data-deleteshift]'); if (del){ deleteShift(del.dataset.deleteshift); return; }
   if (t.closest('#exportPdf')) exportRangePdf();
 });
 statsView.addEventListener('change', function(e){
@@ -1295,6 +1445,15 @@ document.getElementById('addMoto').innerHTML = '+ '+ICON.moto+' Moto';
 
 function renderSettings(){
   var a = document.activeElement, keep = a && a.id;
+  var aset = S.alertSettings;
+  document.getElementById('alertSound').value = aset.sound;
+  document.getElementById('alertDuration').value = aset.duration;
+  document.getElementById('alertDurationValue').textContent = aset.duration;
+  document.getElementById('alertVolume').value = aset.volume;
+  document.getElementById('alertVolumeValue').textContent = aset.volume;
+  document.getElementById('alertInterval').value = String(aset.interval);
+  document.getElementById('alertWarning').checked = !!aset.warning;
+  document.getElementById('alertVibration').checked = !!aset.vibration;
   document.getElementById('carRows').innerHTML = S.cars.map(function(c){
     var busy = !!S.timers[c.id];
     return '<div class="row" data-car="'+c.id+'">'+
@@ -1349,6 +1508,33 @@ panel.addEventListener('click', function(e){
   else { if (S.presets.length<=1) return; var pid=d.closest('[data-preset]').dataset.preset; S.presets=S.presets.filter(function(p){ return p.id!==pid; }); }
   save(); render();
 });
+
+function updateAlertSettings(){
+  var aset = S.alertSettings;
+  aset.sound = document.getElementById('alertSound').value;
+  aset.duration = Number(document.getElementById('alertDuration').value);
+  aset.volume = Number(document.getElementById('alertVolume').value);
+  aset.interval = Number(document.getElementById('alertInterval').value);
+  aset.warning = document.getElementById('alertWarning').checked;
+  aset.vibration = document.getElementById('alertVibration').checked;
+  document.getElementById('alertDurationValue').textContent = aset.duration;
+  document.getElementById('alertVolumeValue').textContent = aset.volume;
+  save();
+}
+['alertSound','alertDuration','alertVolume','alertInterval','alertWarning','alertVibration'].forEach(function(id){
+  var el = document.getElementById(id);
+  el.addEventListener('input', updateAlertSettings);
+  el.addEventListener('change', updateAlertSettings);
+});
+document.getElementById('testAlert').addEventListener('click', function(){
+  unlockAudio(); stopAlarmTest(); playAlarm('done', true);
+});
+document.getElementById('stopAlert').addEventListener('click', function(){
+  stopAlarmTest();
+  try { if (navigator.vibrate) navigator.vibrate(0); } catch(e){}
+  toast('Se detuvo la prueba. Si ya empezó un tono, puede terminar en un instante.');
+});
+
 function addVehicle(type){ var n=S.cars.length; S.cars.push({id:uid(), name:NAMES[n%NAMES.length], color:COLORS[n%COLORS.length], type:type}); save(); render(); }
 document.getElementById('addCar').addEventListener('click', function(){ addVehicle('carro'); });
 document.getElementById('addMoto').addEventListener('click', function(){ addVehicle('moto'); });
@@ -1356,6 +1542,7 @@ document.getElementById('addPreset').addEventListener('click', function(){
   var last = S.presets[S.presets.length-1]; S.presets.push({id:uid(), min:(last?last.min:5)+5, price:last?last.price:5000}); save(); render();
 });
 
+updateProjectName();
 render();
 try { if (localStorage.getItem('pista-tab')==='stats') setTab('stats'); } catch(e){}
 })();
